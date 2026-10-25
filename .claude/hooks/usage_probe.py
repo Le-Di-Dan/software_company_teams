@@ -44,7 +44,8 @@ for key, label in (("five_hour", "5h"), ("seven_day", "7d")):
     w = record.get(key) or {}
     if w.get("used_percentage") is not None and not (w.get("resets_at") and w["resets_at"] <= now):
         pct = float(w["used_percentage"])
-        c = RED if pct >= u["hard"] else YELLOW if pct >= u["soft"] else GREEN
+        soft, hard = us.thresholds(key)
+        c = RED if pct >= hard else YELLOW if pct >= soft else GREEN
         bar = "█" * int(pct // 10) + "░" * (10 - int(pct // 10)) if key == "five_hour" else ""
         segs.append(f"{label} {c}{bar}{' ' if bar else ''}{pct:.0f}%{RESET}")
 if not segs and record["session_cost_usd"] is not None:

@@ -20,6 +20,8 @@
   "usage_policy": {
     "soft_pct": 75,
     "hard_pct": 80,
+    "seven_day_soft_pct": 95,
+    "seven_day_hard_pct": 98,
     "budget_usd": null
   },
   "cost_policy": {

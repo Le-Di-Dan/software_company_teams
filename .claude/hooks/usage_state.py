@@ -2,9 +2,13 @@
 
 state/usage.json is written by the status line (usage_probe.py) from Claude Code's `rate_limits` data
 (Pro/Max plans) and session cost. The policy lives in state/project.json -> usage_policy:
-  soft_pct   (default 75)  director may not dispatch new subagent work
-  hard_pct   (default 80)  everyone stops and writes a handoff to state/handoff/
+  soft_pct   (default 75)  5-hour window (and budget): director may not dispatch new subagent work
+  hard_pct   (default 80)  5-hour window (and budget): everyone stops and writes a handoff to state/handoff/
+  seven_day_soft_pct (default 95), seven_day_hard_pct (default 98)  the same levels for the 7-day window.
+             75% of a week still leaves several 5-hour sessions, and a 7-day pause lasts days, so it only
+             trips close to the real limit.
   budget_usd (default null) for API-key sessions without rate_limits: session cost / budget = usage %
+Each window is judged against its own thresholds; the most severe level wins.
 A file state/handoff/PAUSE forces the hard level (manual pause, e.g. to test the mechanism).
 """
 import json
@@ -16,7 +20,8 @@ from pathlib import Path
 ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR", ".")).resolve()
 STATE = ROOT / "state"
 HANDOFF = STATE / "handoff"
-DEFAULTS = {"soft_pct": 75, "hard_pct": 80, "budget_usd": None}
+DEFAULTS = {"soft_pct": 75, "hard_pct": 80, "seven_day_soft_pct": 95, "seven_day_hard_pct": 98, "budget_usd": None}
+SEVERITY = {"ok": 0, "soft": 1, "hard": 2}
 WINDOW_VI = {"five_hour": "giới hạn 5 giờ", "seven_day": "giới hạn 7 ngày", "budget": "ngân sách USD", "manual": "PO tạm dừng thủ công"}
 
 
@@ -32,29 +37,39 @@ def policy():
     return {**DEFAULTS, **(project.get("usage_policy") or {})}
 
 
+def thresholds(window, pol=None):
+    """(soft, hard) percentages for a usage window."""
+    pol = pol or policy()
+    if window == "seven_day":
+        return float(pol["seven_day_soft_pct"]), float(pol["seven_day_hard_pct"])
+    return float(pol["soft_pct"]), float(pol["hard_pct"])
+
+
 def current(now=None):
-    """Return {level: ok|soft|hard, pct, window, resets_at, soft, hard} for the highest live window."""
+    """Return {level: ok|soft|hard, pct, window, resets_at, soft, hard} for the most severe live window
+    (ties: the one closest to its soft threshold); soft/hard are that window's thresholds."""
     now = now or time.time()
     pol = policy()
     usage = read_json(STATE / "usage.json") or {}
-    best = {"pct": None, "window": None, "resets_at": None}
+    windows = []
     for key in ("five_hour", "seven_day"):
         w = usage.get(key) or {}
         pct, resets = w.get("used_percentage"), w.get("resets_at")
         if pct is None or (resets and resets <= now):
             continue  # window absent or already reset
-        if best["pct"] is None or pct > best["pct"]:
-            best = {"pct": float(pct), "window": key, "resets_at": resets}
-    if best["pct"] is None and pol.get("budget_usd") and usage.get("session_cost_usd") is not None:
-        best = {"pct": 100.0 * usage["session_cost_usd"] / float(pol["budget_usd"]), "window": "budget", "resets_at": None}
+        windows.append({"pct": float(pct), "window": key, "resets_at": resets})
+    if not windows and pol.get("budget_usd") and usage.get("session_cost_usd") is not None:
+        windows.append({"pct": 100.0 * usage["session_cost_usd"] / float(pol["budget_usd"]), "window": "budget",
+                        "resets_at": None})
+    for w in windows:
+        w["soft"], w["hard"] = thresholds(w["window"], pol)
+        w["level"] = "hard" if w["pct"] >= w["hard"] else "soft" if w["pct"] >= w["soft"] else "ok"
+    soft, hard = thresholds("five_hour", pol)
+    best = max(windows, key=lambda w: (SEVERITY[w["level"]], w["pct"] / w["soft"] if w["soft"] else 0),
+               default={"pct": None, "window": None, "resets_at": None, "soft": soft, "hard": hard, "level": "ok"})
     if (HANDOFF / "PAUSE").exists():
-        best = {"pct": best["pct"], "window": "manual", "resets_at": best["resets_at"]}
-        level = "hard"
-    elif best["pct"] is None:
-        level = "ok"
-    else:
-        level = "hard" if best["pct"] >= pol["hard_pct"] else "soft" if best["pct"] >= pol["soft_pct"] else "ok"
-    return {"level": level, "soft": pol["soft_pct"], "hard": pol["hard_pct"], **best}
+        best = {**best, "window": "manual", "level": "hard"}
+    return best
 
 
 def describe(u):

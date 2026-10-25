@@ -1,9 +1,10 @@
 """Usage circuit breaker (PreToolUse on every tool + StopFailure).
 
 Levels come from usage_state.current() (state/usage.json written by the status line):
-  soft (>= soft_pct, default 75)  main session may not start or resume subagent work (Agent, SendMessage);
+  Thresholds per window: 5-hour soft/hard 75/80, 7-day 95/98 (usage_state.py, state/project.json -> usage_policy).
+  soft                            main session may not start or resume subagent work (Agent, SendMessage);
                                   running subagents finish their current task normally.
-  hard (>= hard_pct, default 80)  every subagent is blocked except one Write of its handoff file, then must
+  hard                            every subagent is blocked except one Write of its handoff file, then must
                                   return "PAUSED: <path>"; the main session may only touch state/ to write
                                   state/handoff/HANDOFF.md, log progress and tell the PO when usage resets.
 StopFailure with a rate-limit/billing error records state/handoff/INTERRUPTED.json (agents that were
