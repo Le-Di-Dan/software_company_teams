@@ -63,6 +63,7 @@ Mỗi app chỉ dùng một **squad**: Architect đề xuất một team mobile,
 - **Chặn bí mật:** API key, private key, service_role key không được ghi vào file nằm trong git.
 - **Hành động chỉ PO được làm:** submit lên store, đẩy track production, và lệnh duyệt G3 đều bị chặn với agent.
 - **Lỗ hổng bảo mật:** `state/security-findings.json` theo dõi mọi lỗ hổng. Team dev chỉ được chuyển lỗi sang `fixed`, chỉ team Cyber Security được `verified`, chỉ PO được chấp nhận rủi ro. Lệnh duyệt G3 tự động từ chối nếu còn lỗi Critical/High chưa xử lý.
+- **Cầu dao usage:** thanh trạng thái hiện mức usage 5 giờ / 7 ngày của gói Pro/Max. Từ **75%** giám đốc ngừng giao việc mới; từ **80%** mọi agent dừng lại, ghi bàn giao vào `state/handoff/`, và giám đốc báo bạn giờ reset. Sau reset chạy `claude --continue`, giám đốc tự nạp bàn giao (skill `/resume-work`) và giao lại đúng việc cho đúng agent. Ngưỡng chỉnh trong `state/project.json → usage_policy`; muốn tạm dừng thủ công: `! touch state/handoff/PAUSE` (tiếp tục: `! rm state/handoff/PAUSE`).
 - **Lệnh nguy hiểm** như `rm -rf` thư mục gốc hay force-push đều bị chặn.
 
 ### Phòng Cyber Security

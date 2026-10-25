@@ -17,5 +17,10 @@
   },
   "squad": [],
   "po_release_approval": false,
+  "usage_policy": {
+    "soft_pct": 75,
+    "hard_pct": 80,
+    "budget_usd": null
+  },
   "updated_at": null
 }

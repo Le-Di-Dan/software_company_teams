@@ -41,3 +41,9 @@ coverage/
 state/activity.jsonl
 state/activity.jsonl.tmp
 .playwright-mcp/
+
+# Usage circuit breaker (machine-local): status-line reading, pause markers, manual pause switch
+state/usage.json
+state/usage.json.tmp
+state/handoff/.*.paused
+state/handoff/PAUSE

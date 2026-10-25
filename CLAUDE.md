@@ -62,6 +62,7 @@ company/          templates, compliance checklists, framework research (do not e
 | `docs/03-review-board/` | panel members (own files), product-manager (decision) |
 | `docs/04-design/` | ui-designer, ux-designer, ux-writer, uiux-rnd-researcher (reviews) |
 | `docs/05-architecture/` | solution-architect, security-lead (`security-review.md`) |
+| `state/handoff/<agent>-<id>.md` | any agent, only when the usage breaker pauses it (`HANDOFF.md`: delivery-director) |
 | `state/security-findings.json` | security-lead creates; cyber team + engineers append; status flow hook-enforced |
 | `docs/07-qa/*pentest*.md`, `*appsec*.md` | cyber-security team (security-lead, appsec-code-auditor, mobile-pentester, api-cloud-pentester) |
 | `docs/07-qa/` | qa-engineer, test-automation-engineer |
