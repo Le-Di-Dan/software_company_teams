@@ -43,9 +43,10 @@ RELEASE = {"release-manager", "devops-engineer"}
 CYBER = {"security-lead", "appsec-code-auditor", "mobile-pentester", "api-cloud-pentester"}
 ENGINEERS = MOBILE | BACKEND | BAAS | TESTERS
 
-# First matching rule wins. Paths are repo-relative POSIX. Empty set = no subagent may edit.
+# First matching rule wins. Paths are repo-relative POSIX. Empty set = no subagent may edit; None = any agent may.
 OWNERS = [
     (re.compile(r"^(\.claude|company)/"), set()),
+    (re.compile(r"^state/handoff/[^/]+\.md$"), None),  # any agent writes its own pause handoff (usage_guard.py)
     (re.compile(r"^state/feature_list\.json$"), {"solution-architect"} | ENGINEERS),
     (re.compile(r"^state/security-findings\.json$"), CYBER | ENGINEERS),
     (re.compile(r"^state/"), set()),
@@ -150,7 +151,7 @@ def check_project_json(old_text, new_text):
 def check_lane(rel, agent):
     for pattern, owners in OWNERS:
         if pattern.search(rel):
-            if agent not in owners:
+            if owners is not None and agent not in owners:
                 who = ", ".join(sorted(owners)) or "the delivery-director (main session) only"
                 block(f"{agent} may not edit {rel}; owner(s): {who}. Put the requested change in your output for the owner.")
             return

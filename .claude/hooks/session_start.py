@@ -58,4 +58,26 @@ if progress.exists():
         lines.append("\n## Last progress entries")
         lines.extend(tail)
 
+# Resume mode: work was paused by usage_guard.py or cut off by an API limit.
+handoff_dir = state / "handoff"
+handoffs = sorted(p for p in handoff_dir.glob("*.md")) if handoff_dir.is_dir() else []
+interrupted = read_json(handoff_dir / "INTERRUPTED.json")
+if handoffs or interrupted:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import usage_state as us
+
+    u = us.current()
+    lines.append("\n## RESUME MODE: company work was paused")
+    for p in handoffs:
+        lines.append(f"- handoff: {p.relative_to(root).as_posix()}")
+    for a in (interrupted or {}).get("unfinished", []):
+        lines.append(f"- interrupted without handoff (API {interrupted.get('error')}): {a.get('agent')} "
+                     f"id={a.get('id')} task=\"{a.get('desc') or '?'}\"")
+    if u["level"] == "ok":
+        lines.append("Usage is below the soft limit. Before anything else run the `resume-work` skill: verify the "
+                     "handoffs, re-dispatch each paused task to the same agent type, archive the handoff files.")
+    else:
+        lines.append(f"Usage is still {u['level']} ({us.describe(u)}). Do NOT dispatch work. Greet the PO, explain "
+                     "in Vietnamese that the company resumes after the reset, and stop.")
+
 sys.stdout.write("\n".join(lines) + "\n")

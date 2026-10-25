@@ -54,6 +54,8 @@
   .stat b{display:block;font-family:var(--f-display);font-size:1.4rem;line-height:1;font-variant-numeric:tabular-nums}
   .stat span{font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim)}
   .stat.good b{color:var(--online)}.stat.accent b{color:var(--accent)}
+  .stat.u-ok b{color:var(--online)}.stat.u-soft b{color:var(--gate)}.stat.u-hard b{color:var(--crit)}
+  .stat.u-soft{border-color:#5a4520}.stat.u-hard{border-color:#5a2630}
 
   /* ---- phase rail ---- */
   .pipe{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 6px;scrollbar-width:thin}
@@ -176,6 +178,7 @@
       <div class="stat"><b id="s-agents">36</b><span>Nhân sự AI</span></div>
       <div class="stat accent"><b id="s-depts">13</b><span>Phòng ban</span></div>
       <div class="stat good"><b id="s-run">0</b><span>Đang làm</span></div>
+      <div class="stat" id="t-usage"><b id="s-usage">–</b><span id="s-usagelbl">Usage 5 giờ</span></div>
       <div class="stat"><b id="s-phase">0</b><span id="s-phname">Audit ý tưởng</span></div>
     </div>
   </header>
@@ -641,6 +644,10 @@ class Engine{
     else if(e.ev==="stop"){const a=this.bind(e);a.stop=ts;a.last=ts;a.msg=e.msg;if(a.task)a.task.status="done";
       this.log(ts,a.dept,`<span class="mono">${esc(a.agent)}</span> hoàn thành${a.desc?` “${esc(a.desc)}”`:""}`);
       const me=DEPT[a.dept];if(ani&&me!==dir){me.critter.visit(dir,`Báo cáo: xong ${clip(a.desc||a.agent,40)}`,"Tốt lắm!");}}
+    else if(e.ev==="pause"){const a=e.id?this.bind(e):null,dept=DEPT[deptOf(e.agent)];if(a)a.paused=true;
+      this.log(ts,dept.id,`<span class="mono">${esc(e.agent)}</span> tạm dừng vì usage${e.pct!=null?` ${Math.round(e.pct)}%`:""}, đang viết bàn giao`);
+      if(ani)dept.critter.say(dept.id==="lead"?"Cả công ty tạm nghỉ, chờ reset!":"Tạm nghỉ, viết bàn giao đã…",3000);}
+    else if(e.ev==="limit"){this.log(ts,"lead",`<b>Chạm giới hạn API</b> (${esc(e.error||"")}): việc dở được ghi vào INTERRUPTED.json`);if(ani)dir.critter.say("Hết usage rồi!",3000);}
     else if(e.ev==="po"){this.log(ts,"lead",`<b>PO</b> vừa gửi tin nhắn cho ${esc(dir.leader.name)}`);if(ani)dir.critter.say("PO vừa nhắn, để tôi xem!",2200);}
     else if(e.ev==="idle"){const lastF=this.feed[this.feed.length-1];if(!lastF||!lastF.idle){this.log(ts,"lead",`${esc(dir.leader.name)} chờ PO phản hồi`);this.feed[this.feed.length-1].idle=true;}
       if(ani&&!this.running().length)dir.critter.say("Chờ PO trả lời…",2600);}
@@ -663,6 +670,11 @@ function renderHud(){
   document.getElementById("s-agents").textContent=DEPTS.reduce((a,d)=>a+d.agents.length,0);
   document.getElementById("s-depts").textContent=DEPTS.length;
   document.getElementById("s-run").textContent=view().running().length;
+  const u=SNAP.usage,ut=document.getElementById("t-usage");
+  ut.className="stat"+(u&&u.pct!=null?" u-"+u.level:"");
+  document.getElementById("s-usage").textContent=u&&u.pct!=null?Math.round(u.pct)+"%":"–";
+  document.getElementById("s-usagelbl").textContent=u&&u.level==="hard"?"Tạm dừng":u&&u.level==="soft"?"Ngừng giao mới":u&&u.window==="seven_day"?"Usage 7 ngày":"Usage 5 giờ";
+  if(!demo&&u&&(u.level==="hard"||u.paused)){m.className="mode demo";t.textContent="Tạm dừng"+(u.resets_at?" · reset "+hhmm(u.resets_at).slice(0,5):"");}
   document.getElementById("s-phase").textContent=SNAP.phase;
   document.getElementById("s-phname").textContent=PHASES[SNAP.phase].t;
   document.getElementById("appname").textContent=SNAP.app?("App: "+SNAP.app):"chưa có app";

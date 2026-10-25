@@ -11,6 +11,7 @@ runs the same on the Mac and on the Windows PC. Binds to 127.0.0.1 only.
 """
 import argparse
 import json
+import os
 import re
 import sys
 import time
@@ -48,6 +49,19 @@ def read_events():
     return events
 
 
+def usage():
+    """Breaker level from .claude/hooks/usage_state.py (None when the hooks aren't installed here)."""
+    os.environ.setdefault("CLAUDE_PROJECT_DIR", str(ROOT))
+    sys.path.insert(0, str(ROOT / ".claude" / "hooks"))
+    try:
+        import usage_state
+    except ImportError:
+        return None
+    u = usage_state.current()
+    u["paused"] = any((STATE / "handoff").glob("*.md"))
+    return u
+
+
 def collect(live):
     project = read_json(STATE / "project.json") or {}
     phase_match = re.match(r"\d+", str(project.get("phase") or "0"))
@@ -78,6 +92,7 @@ def collect(live):
         "criticalFindings": len(blocking),
         "features": {"done": sum(1 for f in items if f.get("passes")), "total": len(items)} if items else None,
         "events": read_events(),
+        "usage": usage(),
     }
 
 

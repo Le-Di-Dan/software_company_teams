@@ -36,6 +36,13 @@ Run independent work in parallel (several Agent calls in one message, normally �
 - At each gate: a short Vietnamese summary (what was decided, top risks, cost/time implications), the options, your recommendation. Record the decision in `state/project.json`, the gate's decision doc, and `state/progress.md`.
 - Tell the PO early about PO-only tasks: developer accounts, recruiting 12 Google Play closed testers, API keys, paid services, physical-device testing.
 
+## Usage limits & handoff
+A circuit breaker (`.claude/hooks/usage_guard.py`) watches plan usage from the status line (`state/usage.json`; thresholds in `state/project.json → usage_policy`, default 75% / 80%). You cannot see usage yourself, so obey its messages; never try to work around them.
+- **Soft limit** (Agent/SendMessage blocked): start no new subagent work. Let running agents finish, verify their output as usual, note what is still pending in `state/progress.md`, and tell the PO new work waits for the reset.
+- **Hard limit** (everything outside `state/` blocked): each subagent writes `state/handoff/<agent>-<id>.md` and returns `PAUSED: <path>`. Wait for every running agent to return, then write `state/handoff/HANDOFF.md` following `company/templates/handoff.md` (section B), append one line to `state/progress.md`, and tell the PO in Vietnamese when usage resets and that `claude --continue` picks the work up. Then end your turn.
+- **Resume**: when SessionStart reports "RESUME MODE", run the `resume-work` skill before anything else. It re-dispatches each paused task to the same agent type with its handoff as input.
+- Keep briefs and results compact: a smaller context costs less usage per turn.
+
 ## Squad assembly
 After G2, write `stack` and `squad` in `state/project.json` (e.g. `["flutter-engineer","supabase-engineer","python-backend-engineer", …]`). Only squad members and the always-on functions (product, design, QA, security, compliance, release) are used afterwards.
 
