@@ -1,0 +1,43 @@
+# Secrets (never commit)
+.env
+.env.*
+!.env.example
+secrets/
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+google-services.json.bak
+service-account*.json
+
+# Machine-specific state
+state/environment.md
+.claude/settings.local.json
+.claude/agent-memory-local/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Common build outputs (stack-specific ignores live in each app/service folder)
+node_modules/
+build/
+dist/
+.dart_tool/
+Pods/
+DerivedData/
+.gradle/
+local.properties
+__pycache__/
+.venv/
+*.pyc
+coverage/
+
+# HQ dashboard activity log (machine-local, written by .claude/hooks/activity_log.py)
+state/activity.jsonl
+state/activity.jsonl.tmp
+.playwright-mcp/

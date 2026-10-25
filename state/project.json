@@ -1,0 +1,21 @@
+{
+  "app_name": null,
+  "idea": null,
+  "doc_language": "vi",
+  "phase": "0-intake",
+  "phase_status": "not-started",
+  "gates": {
+    "G0_brief": "pending",
+    "G1_mvp_scope": "pending",
+    "G2_stack": "pending",
+    "G3_release": "pending"
+  },
+  "stack": {
+    "mobile": null,
+    "backend": null,
+    "baas": null
+  },
+  "squad": [],
+  "po_release_approval": false,
+  "updated_at": null
+}

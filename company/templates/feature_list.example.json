@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "locked": true,
+  "features": [
+    {
+      "id": "F-001",
+      "story": "US-001",
+      "title": "Email sign-up with verification",
+      "category": "functional",
+      "platforms": ["ios", "android"],
+      "owner": "flutter-engineer",
+      "priority": 1,
+      "depends_on": [],
+      "status": "active",
+      "acceptance": [
+        "Given a new user on the welcome screen, When they submit a valid email and password, Then a verification email is sent and the 'check your inbox' screen shows",
+        "Given an invalid email, When they submit, Then an inline error explains the problem and nothing is sent"
+      ],
+      "verification": [
+        "flutter test test/auth/sign_up_test.dart",
+        "maestro test tests/e2e/auth/sign_up.yaml (ios + android)"
+      ],
+      "needs": [],
+      "passes": false,
+      "evidence": "",
+      "cr": null,
+      "notes": ""
+    }
+  ]
+}

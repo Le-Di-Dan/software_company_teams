@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "agent": "delivery-director",
+  "permissions": {
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(bash scripts/env-doctor.sh *)",
+      "Bash(flutter analyze *)",
+      "Bash(flutter test *)",
+      "Bash(dart format *)",
+      "Bash(npm test *)",
+      "Bash(npm run lint *)",
+      "Bash(npx tsc *)",
+      "Bash(pytest *)",
+      "Bash(go test *)",
+      "Bash(go vet *)",
+      "Bash(maestro test *)",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [
+      "Read(./secrets/**)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" session_start.py"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" guard_files.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" guard_bash.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent|Task|Read|Write|Edit|MultiEdit|Grep|Glob|Bash|WebSearch|WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" activity_log.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" activity_log.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" activity_log.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" activity_log.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/run.sh\" activity_log.py"
+          }
+        ]
+      }
+    ]
+  }
+}

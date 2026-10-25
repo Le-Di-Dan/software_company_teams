@@ -1,0 +1,21 @@
+# Repo is shared between macOS and Windows: keep scripts and text in LF so bash/Git Bash can run them.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ttf binary
+*.otf binary
+*.mp3 binary
+*.wav binary
+*.lottie binary
+*.riv binary
