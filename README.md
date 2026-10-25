@@ -64,6 +64,12 @@ Mỗi app chỉ dùng một **squad**: Architect đề xuất một team mobile,
 - **Hành động chỉ PO được làm:** submit lên store, đẩy track production, và lệnh duyệt G3 đều bị chặn với agent.
 - **Lỗ hổng bảo mật:** `state/security-findings.json` theo dõi mọi lỗ hổng. Team dev chỉ được chuyển lỗi sang `fixed`, chỉ team Cyber Security được `verified`, chỉ PO được chấp nhận rủi ro. Lệnh duyệt G3 tự động từ chối nếu còn lỗi Critical/High chưa xử lý.
 - **Cầu dao usage:** thanh trạng thái hiện mức usage 5 giờ / 7 ngày của gói Pro/Max. Từ **75%** giám đốc ngừng giao việc mới; từ **80%** mọi agent dừng lại, ghi bàn giao vào `state/handoff/`, và giám đốc báo bạn giờ reset. Sau reset chạy `claude --continue`, giám đốc tự nạp bàn giao (skill `/resume-work`) và giao lại đúng việc cho đúng agent. Ngưỡng chỉnh trong `state/project.json → usage_policy`; muốn tạm dừng thủ công: `! touch state/handoff/PAUSE` (tiếp tục: `! rm state/handoff/PAUSE`).
+- **Tiết kiệm token** (`cost_guard.py`, cấu hình ở `state/project.json → cost_policy`):
+  - **Chọn model tự động theo `profile`.** `economy` (mặc định) dùng Opus cho devils-advocate, solution-architect, code-reviewer, product-manager và security-lead; `balanced` thêm Opus cho các nhóm R&D và monetization; `quality` thêm BA, compliance và legal. Muốn ghim riêng một agent thì dùng `model_overrides`, ví dụ `{"product-manager": "opus"}`.
+  - **Không gọi lại agent đã nghỉ quá 4 phút** (`resume_idle_min`). Cache của sub-agent chỉ sống 5 phút, nên trường hợp đó công ty tạo agent mới đọc lại file thay vì gọi agent cũ.
+  - **Đọc gọn.** Tài liệu trên 30KB phải đọc theo từng phần (tối đa 200 dòng mỗi lần); hook chặn `cat`/`sed` đổ cả file và gửi lại dàn ý của file cho agent.
+  - **Song song tối đa 3 agent** (`max_parallel`). Context tự compact khi đạt 300K token (`autoCompactWindow` trong `.claude/settings.json`).
+  - **Ngôn ngữ.** Tài liệu nội bộ viết bằng tiếng Anh (`doc_language: en`, ít token hơn tiếng Việt nhiều); mọi thứ PO đọc vẫn bằng tiếng Việt.
 - **Lệnh nguy hiểm** như `rm -rf` thư mục gốc hay force-push đều bị chặn.
 
 ### Phòng Cyber Security

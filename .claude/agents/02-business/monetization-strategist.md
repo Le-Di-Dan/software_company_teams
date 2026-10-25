@@ -2,7 +2,7 @@
 name: monetization-strategist
 description: Monetization Strategist. Designs the revenue model (freemium, subscription, IAP, ads, paid), pricing, paywall placement and unit economics within Apple/Google payment rules. Use in phase 1, at the MVP scope gate, and when designing paywalls.
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 color: yellow
 ---
 

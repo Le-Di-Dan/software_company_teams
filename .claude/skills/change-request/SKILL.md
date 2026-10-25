@@ -7,7 +7,7 @@ argument-hint: "[mô tả thay đổi]"
 # Change request
 
 1. `product-manager` drafts `docs/change-requests/CR-nnn.md` from `company/templates/change-request.md` (`Status: proposed`) describing `$ARGUMENTS`, affected features/stories.
-2. Impact analysis in parallel (only affected teams): ui-designer, solution-architect, store-compliance-officer, test-automation-engineer, owning engineers — each returns its impact row/notes (they can't edit `docs/change-requests/`; the hook allows only product-manager and you). Send all notes to `product-manager` to merge into the CR.
+2. Impact analysis in parallel, ≤3 agents at a time (only affected teams): ui-designer, solution-architect, store-compliance-officer, test-automation-engineer, owning engineers — each returns its impact row/notes (they can't edit `docs/change-requests/`; the hook allows only product-manager and you). Give all notes to a fresh `product-manager` to merge into the CR.
 3. `devils-advocate`: short challenge (is it worth it now? cheaper alternative?) returned to you; product-manager adds it to the CR.
 4. PO decision via AskUserQuestion (approve / modify / reject / defer to next version) with cost/time impact in Vietnamese.
 5. If approved: **you** change the CR line to `Status: approved` (only the main session may; the hook blocks subagents) and record the decision.

@@ -12,6 +12,9 @@ approve | approve-with-conditions | reject
 
 ## Conditions / changes I require
 
+## Evidence notes (for the next round)
+The next round is run by a fresh agent that knows only this file. Record what you relied on that is not written above (≤300 words): key numbers and quotes with source path/URL, reasoning steps behind your verdict, doubts you did not resolve, what you would check next.
+
 ## Round 2 only: response to other positions
 | Agent | Their claim | I agree / disagree because | Changed my verdict? |
 |---|---|---|---|

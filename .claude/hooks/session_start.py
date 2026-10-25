@@ -26,6 +26,9 @@ else:
     lines.append("- Gates: " + ", ".join(f"{k}={v}" for k, v in gates.items()))
     stack = project.get("stack", {})
     lines.append("- Stack: " + ", ".join(f"{k}={v}" for k, v in stack.items()))
+    cost = project.get("cost_policy") or {}
+    lines.append(f"- Cost policy: profile={cost.get('profile', 'economy')}, max_parallel={cost.get('max_parallel', 3)}, "
+                 f"doc_language={project.get('doc_language', 'en')} (see 'Cost discipline' in your instructions)")
 
 features = read_json(state / "feature_list.json")
 if features and features.get("features"):

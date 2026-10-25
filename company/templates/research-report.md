@@ -22,4 +22,6 @@
 ## Risks & unknowns
 ## Challenges to other teams / to the brief
 ## Questions for PO
+## Working notes (for cross-check)
+The cross-check is run by a fresh agent that knows only this file. Record what is not above (≤300 words): conflicting sources and how you weighed them, leads not pursued, searches that found nothing, numbers you could not verify.
 ## Sources
