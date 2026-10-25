@@ -19,10 +19,10 @@ Argument: `$ARGUMENTS` = gate or topic. Folder: `docs/03-review-board/<gate-or-t
 Keep panels ≤6 agents for cost.
 
 ## Round 1 — independent positions (parallel, waves of ≤3 agents)
-Brief each member: read the proposal files; write `<folder>/<agent>-round-1.md` using `company/templates/review-position.md`; judge only from your discipline; cite evidence; give a verdict and conditions.
+Brief each member: read the proposal files; write `<folder>/<agent>-round-1.md` using `company/templates/review-position.md`; judge only from your discipline; cite evidence; give a verdict and conditions; fill "Evidence notes" so a fresh agent can carry your position into round 2.
 
 ## Round 2 — rebuttal (parallel, waves of ≤3)
-Start a fresh agent per member (same type; round-1 caches have expired): "Read all round-1 files in `<folder>`. Write `<agent>-round-2.md`: respond to the claims that touch your area, say what changed your mind, keep or drop your conditions."
+Start a fresh agent per member (same type; round-1 caches have expired): "Read all round-1 files in `<folder>`. Write `<agent>-round-2.md`: respond to the claims that touch your area, say what changed your mind, keep or drop your conditions, and update Evidence notes." Each brief names the member's own round-1 file first.
 
 ## Round 3 — devil's advocate final challenge
 `devils-advocate`: read all files, write `devils-advocate-final.md`: remaining unresolved objections ranked, and the best alternative proposal if any.

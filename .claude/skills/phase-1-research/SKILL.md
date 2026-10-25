@@ -9,7 +9,7 @@ Precondition: `gates.G0_brief == "approved"`.
 
 ## Step 1 — Parallel research (two waves, ≤3 agents at a time)
 Wave A: business-rnd-researcher, market-researcher, uiux-rnd-researcher. Wave B: ai-rnd-researcher, monetization-strategist (after `market.md` exists, so pricing data is available).
-Common brief for all: inputs `docs/00-intake/brief.md`, `docs/00-intake/constitution.md`, the "Assumptions to validate" list; output to their file in `docs/01-research/`; sources with URLs and dates; end with "Challenges" and "Questions for PO".
+Common brief for all: inputs `docs/00-intake/brief.md`, `docs/00-intake/constitution.md`, the "Assumptions to validate" list; output to their file in `docs/01-research/`; sources with URLs and dates; end with "Challenges", "Questions for PO" and "Working notes (for cross-check)" (template `company/templates/research-report.md`), so the fresh cross-check agent loses nothing.
 
 | Agent | Output | Focus to state in the brief |
 |---|---|---|

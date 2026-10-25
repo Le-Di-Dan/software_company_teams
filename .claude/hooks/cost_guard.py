@@ -32,10 +32,10 @@ DEFAULTS = {"profile": "economy", "model_overrides": {}, "max_parallel": 3, "res
 
 # Agents that run on Opus per profile; every other company agent runs on Sonnet.
 OPUS = {
-    "economy": {"devils-advocate", "solution-architect", "code-reviewer"},
+    "economy": {"devils-advocate", "solution-architect", "code-reviewer", "product-manager", "security-lead"},
 }
-OPUS["balanced"] = OPUS["economy"] | {"product-manager", "security-lead", "business-rnd-researcher",
-                                      "uiux-rnd-researcher", "ai-rnd-researcher", "monetization-strategist"}
+OPUS["balanced"] = OPUS["economy"] | {"business-rnd-researcher", "uiux-rnd-researcher", "ai-rnd-researcher",
+                                      "monetization-strategist"}
 OPUS["quality"] = OPUS["balanced"] | {"business-analyst", "store-compliance-officer", "privacy-legal-counsel"}
 RANK = {"haiku": 0, "sonnet": 1, "opus": 2}
 # Built-in helpers keep their own defaults (Explore already runs on a small model).

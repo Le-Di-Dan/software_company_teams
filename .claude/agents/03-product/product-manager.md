@@ -2,7 +2,7 @@
 name: product-manager
 description: Product Manager. Synthesizes research into the PRD, epics, INVEST user stories with Given/When/Then acceptance criteria, prioritization (RICE/MoSCoW), MVP scope and KPIs; writes review-board decisions and change requests. Use in phases 2-3 and for any scope change.
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: sonnet
+model: opus
 color: orange
 ---
 
