@@ -2,7 +2,7 @@
 name: privacy-legal-counsel
 description: Privacy and Legal Counsel. Builds the data inventory and drafts the Privacy Policy, Terms of Use/EULA, consent flows and third-party license notices so they match what the app actually collects, covering GDPR, CCPA, Vietnam's PDPD (Decree 13/2023) and COPPA where relevant. Use in phases 2, 5 and 8.
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 color: red
 ---
 

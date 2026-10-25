@@ -11,7 +11,7 @@ Only the delivery-director runs this. The usage breaker (`.claude/hooks/usage_gu
 2. **Read the handoffs.** `state/handoff/HANDOFF.md` (if written), every `state/handoff/<agent>-<id>.md`, and `state/handoff/INTERRUPTED.json` (agents cut off by an API limit before they could write a handoff).
 3. **Verify, don't trust.** For each "Done" item, check the file exists and is complete. For each "In progress" file, open it and confirm where it stops. For interrupted agents without a handoff, look up their activity in `state/activity.jsonl` (`"id": "<id>"` lines: files read/written) and inspect those files; decide "continue" or "redo" and write that decision into the resume brief.
 4. **Archive before dispatching.** Move the handoff files to `state/handoff/archive/<YYYYMMDD-HHMM>/` (keep `INTERRUPTED.json` there too) and delete the `state/handoff/.*.paused` markers. A new pause during the resume then writes fresh files that can't be confused with old ones.
-5. **Re-dispatch** each unfinished task to the **same agent type** (parallel where independent, ≤5 at a time), using the normal delegation brief plus:
+5. **Re-dispatch** each unfinished task as a **new Agent call** of the **same agent type** (never SendMessage to the paused agent: its cache is long gone and its context would be re-billed in full), parallel where independent, ≤3 at a time, using the normal delegation brief plus:
    - `Handoff: state/handoff/archive/<stamp>/<file>.md`: read it first; do not redo items listed under Done after verifying them.
    - The partial file(s) to continue and the exact remaining work.
    Follow the current phase's SOP for anything that comes after the resumed tasks.

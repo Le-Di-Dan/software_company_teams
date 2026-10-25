@@ -18,7 +18,10 @@ description: Show the company's current state to the PO in Vietnamese (phase, ga
 3. Recommend the next step and the skill that runs it (e.g. `phase-1-research`). If the project hasn't started, invite the PO to describe the idea in their own words, then run `phase-0-intake`. If the PO wants a visual overview, offer `/company-dashboard` (the isometric HQ map).
 4. `state/project.json` reference structure:
 ```json
-{"app_name": null, "idea": null, "doc_language": "vi", "phase": "0-intake", "phase_status": "not-started",
+{"app_name": null, "idea": null, "doc_language": "en", "phase": "0-intake", "phase_status": "not-started",
  "gates": {"G0_brief": "pending", "G1_mvp_scope": "pending", "G2_stack": "pending", "G3_release": "pending"},
- "stack": {"mobile": null, "backend": null, "baas": null}, "squad": [], "po_release_approval": false, "updated_at": null}
+ "stack": {"mobile": null, "backend": null, "baas": null}, "squad": [], "po_release_approval": false,
+ "usage_policy": {"soft_pct": 75, "hard_pct": 80, "budget_usd": null},
+ "cost_policy": {"profile": "economy", "model_overrides": {}, "max_parallel": 3, "resume_idle_min": 4, "read_max_kb": 30, "read_max_lines": 200},
+ "updated_at": null}
 ```

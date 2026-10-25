@@ -2,7 +2,7 @@
 name: business-analyst
 description: Business Analyst. Audits the PO's rough idea - designs interview question rounds, analyzes answers, finds gaps and contradictions, and writes the product brief and project constitution. Use in phase 0 and for change requests that alter business goals.
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 color: blue
 ---
 

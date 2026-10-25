@@ -12,7 +12,7 @@ Precondition: `gates.G2_stack == "approved"`, `state/feature_list.json` locked, 
 2. **Implement**: delegate to the feature's `owner` (squad agent) with a brief: feature id, paths to story, screen specs, tokens, architecture/ADRs, API contract. They follow `kb-engineering-workflow`.
    - Backend-dependent features: backend/BaaS feature first, then the mobile feature against the contract.
    - Independent features for different owners may run in parallel (one message, ≤3 agents). Use `isolation: "worktree"` for parallel agents editing the same app.
-3. **Review**: delegate to `code-reviewer` with the feature id and the changed files/diff. If CHANGES_REQUIRED → SendMessage the findings to the same engineer → re-review. Max 3 cycles, then escalate to `solution-architect`.
+3. **Review**: delegate to `code-reviewer` with the feature id and the changed files/diff. If CHANGES_REQUIRED → send the findings to the same engineer (SendMessage only if it returned less than 4 minutes ago; otherwise a fresh engineer of the same type with the feature id, changed files and findings) → re-review. Max 3 cycles, then escalate to `solution-architect`.
 4. **Tests**: when a feature touches a critical path, ask `test-automation-engineer` to add/extend the Maestro flow.
 5. **Accept**: confirm evidence exists and `passes: true` is set by the engineer (the hook requires `evidence`). Commit: `feat(F-xxx): <title>`. Log one line in `state/progress.md`.
 6. Every ~5 features: run `bash scripts/smoke.sh` and the full test suite; fix regressions before new work.

@@ -11,7 +11,7 @@ Goal: a confirmed `docs/00-intake/brief.md` and `docs/00-intake/constitution.md`
 ## Steps
 1. **Capture the idea.** Save the PO's words verbatim (and `$ARGUMENTS` if given) to `docs/00-intake/answers.md` under "Round 0 — Original idea". Set `state/project.json`: `idea`, `phase: "0-intake"`, `phase_status: "in-progress"`.
 2. **Interview rounds** (repeat 3–5 times):
-   a. Delegate to `business-analyst`: "Read `docs/00-intake/answers.md` and `.claude/skills/phase-0-intake/question-bank.md`. Write the next round (≤4 questions, 2–4 options each, recommended option first, why it matters) to `docs/00-intake/question-rounds.md`. If no critical unknowns remain, answer `READY_FOR_BRIEF`." Resume the same agent with SendMessage for later rounds.
+   a. Delegate to `business-analyst`: "Read `docs/00-intake/answers.md` and `.claude/skills/phase-0-intake/question-bank.md`. Write the next round (≤4 questions, 2–4 options each, recommended option first, why it matters) to `docs/00-intake/question-rounds.md`. If no critical unknowns remain, answer `READY_FOR_BRIEF`." For later rounds start a fresh `business-analyst` with the same brief (the PO's answers usually take longer than the 4-minute resume window; the files carry the history).
    b. Ask the PO with **AskUserQuestion** exactly those questions (Vietnamese). Allow free-text "Other".
    c. Append answers to `docs/00-intake/answers.md` (round number, question, answer).
 3. **Brief + constitution.** Delegate to `business-analyst`: write `docs/00-intake/brief.md` and `docs/00-intake/constitution.md` from the templates, plus the PO-only task list.

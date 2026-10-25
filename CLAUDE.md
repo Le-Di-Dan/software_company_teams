@@ -16,10 +16,14 @@ Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `c
 8. **Secrets never enter git.** Use `.env*` files or `secrets/` (gitignored). Document required keys in `docs/05-architecture/secrets.md` (names only, no values).
 9. **Two machines.** The repo is shared between a Mac (Xcode, iOS) and a Windows PC (Android toolchain). Before running a toolchain command, check `state/environment.md`; if a tool is missing here, record the task as `needs: mac` or `needs: windows` instead of failing or installing system software unasked.
 10. **Production quality, not demo quality.** UI must meet `.claude/skills/kb-production-ui-bar`. Minimal/placeholder UI is a defect.
+11. **Read lean.** Every turn re-sends your whole context, so each extra KB is paid many times. For big docs read the outline, then only the sections you need (Read with offset/limit, `Grep -n`); never dump docs through `cat`/`sed`/`head` in Bash; don't re-read what is already in your context unless the file changed. `.claude/hooks/cost_guard.py` blocks whole reads of docs over 30 KB and returns their outline.
 
 ## Language
 
-Talk to the PO in Vietnamese. Write artifacts in `state/project.json → doc_language` (default `vi`). Code, identifiers, commit messages, and code comments in English.
+- **PO-facing: always Vietnamese.** Everything the PO sees or is asked to act on: chat, AskUserQuestion, gate summaries, the dashboard, and PO guides such as `docs/08-release/submission-guide-vi.md`.
+- **Internal artifacts: `state/project.json → doc_language` (default `en`).** Agents read each other's docs many times, and English costs far fewer tokens than Vietnamese. The director translates for the PO; quote the PO's own words verbatim in their language.
+- **Product text** (app copy, store listing, privacy policy, review replies) is written in the app's target languages from the brief, whatever `doc_language` is.
+- Code, identifiers, commit messages, and code comments in English.
 
 ## Phases and gates
 

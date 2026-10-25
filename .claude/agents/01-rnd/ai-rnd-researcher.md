@@ -2,7 +2,7 @@
 name: ai-rnd-researcher
 description: AI R&D. Researches the latest AI models, on-device and cloud AI capabilities, AI UX patterns and costs, then designs how AI should be integrated into this app (features, architecture, safety, cost per user) for the coding teams to implement. Use in phase 1, phase 2 (AI feature spec) and phase 5 (AI architecture review).
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 memory: user
 color: cyan
 ---

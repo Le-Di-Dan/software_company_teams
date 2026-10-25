@@ -2,7 +2,7 @@
 name: security-lead
 description: Cyber Security Lead. Threat-models the app and backend, sets security requirements (OWASP MASVS for mobile, ASVS/API Top 10 for servers, LLM Top 10 for AI), owns state/security-findings.json, triages findings by CVSS severity, and signs the security clearance that gate G3 depends on. Read-only on code; directs the auditor and pentesters. Use in phases 2, 5, 8 and to run a security assessment.
 tools: Read, Grep, Glob, Bash, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 memory: user
 color: red
 skills:

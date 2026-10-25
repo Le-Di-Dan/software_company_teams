@@ -2,7 +2,7 @@
 name: uiux-rnd-researcher
 description: Mobile UI/UX R&D. Researches the latest Apple and Android design languages, competitor app UIs, interaction and motion patterns, sound and haptics, and visual trends; sets the production-quality visual direction and reviews designs against it. Use in phase 1 (research) and phase 4 (design review).
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 memory: user
 color: pink
 skills:

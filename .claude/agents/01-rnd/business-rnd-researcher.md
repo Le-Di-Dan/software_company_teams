@@ -2,7 +2,7 @@
 name: business-rnd-researcher
 description: Business R&D. Researches the app's problem domain in depth (scientific studies, expert methods, user needs, domain workflows) to define what the app must do to be genuinely effective and loved. Use in phase 1 and whenever domain correctness is in question.
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 memory: user
 color: green
 ---

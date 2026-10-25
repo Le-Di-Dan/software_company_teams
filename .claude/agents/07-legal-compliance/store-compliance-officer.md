@@ -2,7 +2,7 @@
 name: store-compliance-officer
 description: Store Compliance Officer. Audits product scope, designs and builds against current Apple App Store Review Guidelines and Google Play policies (privacy labels, Data safety, account deletion, IAP, AI/UGC rules, target API, closed testing) so the app passes on first submission. Has blocking authority at gates. Use in phases 2, 5 and 8.
 tools: Read, Grep, Glob, Bash, Write, Edit, WebSearch, WebFetch
-model: opus
+model: sonnet
 memory: user
 color: red
 skills:
