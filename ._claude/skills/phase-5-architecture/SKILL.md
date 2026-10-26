@@ -27,3 +27,17 @@ Write to `state/project.json`: `stack` (e.g. `{"mobile":"flutter","backend":"pyt
 
 ## Exit
 Smoke script passes on this machine (others tagged `needs:`); `gates.G2_stack: "approved"`; `phase: "6-build"`; log; commit. Tell the PO what they must do now (developer accounts, Firebase/Supabase project creation, API keys into `.env`, recruit testers).
+
+## Takeover mode
+- **A. Decide**: the architect starts from `docs/t1-discovery/architecture.md`, `module-map.md`, `docs/t3-assessment/architecture-options.md` and `docs/t4-transition/repo-map.md`. The output is the **target architecture plus a migration plan** (`docs/05-architecture/migration-plan.md`).
+  - The migration is ordered so that the app builds, passes the characterization tests and could ship after every step. Use strangler steps: introduce the new module beside the old one, move the callers over, then delete the old one. A big-bang rewrite needs an explicit TG1 decision.
+  - Data and user migrations come with rollback.
+  - The existing stack is the default. Changing it needs a reason tied to findings.
+  - G2 approves the target architecture and the migration plan.
+- **B. Squad**: confirm or adjust what T4 wrote. Update `takeover.owners` if modules move.
+- **C. Set up**: no scaffolding. The repo exists. Setup work is only what the migration plan's first step needs, committed on `company/v2`.
+- **D. Feature list**:
+  - Paths in features are relative to `client/`.
+  - Each feature carries `findings: [TKO-…]` and, for refactors, the characterization tests that must stay green in `verification`.
+  - Migration steps are features too (category `refactor`).
+  - When it is locked, set `feature` in `state/findings.json` for each accepted finding (main session).

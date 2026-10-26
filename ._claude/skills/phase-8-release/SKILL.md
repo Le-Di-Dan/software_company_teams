@@ -26,3 +26,11 @@ Present to the PO in Vietnamese: readiness table (all ✅ or accepted risks), th
 3. Follow `submission-guide-vi.md` to submit (or let release-manager run the `release*` fastlane lanes now that G3 is approved, if the PO prefers).
 
 After submission: log; `phase: "9-maintain"`; commit; handle reviewer feedback via `phase-9-maintain` (rejection handling section).
+
+## Takeover mode
+- Release from the customer's repo after the PO merged the `company/v2` pull request. Signed builds come from the merged default branch, not from an unmerged company branch.
+- Identity:
+  - If the app is already published, keep the bundle/application ID and signing key; losing either loses the existing listing and users.
+  - If it never shipped, replace placeholder IDs, names and icons before the first upload (they are permanent once uploaded).
+- `release-readiness.md` adds a row for each accepted critical or high finding: verified, or deferred by the PO.
+- Hand-over pack (`docs/08-release/handover-vi.md`, release-manager): what changed against the baseline, how to build and release from the customer's repo without the company, the updated `client/CLAUDE.md` proposal, and the open deferred findings.

@@ -13,12 +13,22 @@ Blocks (exit 2, reason on stderr):
 5. Lane violations: inside a subagent (input carries `agent_id`/`agent_type`), code and state paths may
    only be edited by the teams that own them (see OWNERS). The main session (delivery-director) and
    the PO are not restricted; docs/ ownership stays a CLAUDE.md convention.
+6. Takeover engagements (takeover.py): the customer's repo in client/ is read-only for everyone until gate
+   TG1 is approved; afterwards a subagent edits a client/ path only if `takeover.owners` or the built-in
+   lanes (applied inside client/) give it that path. The customer's CLAUDE.md/AGENTS.md/.claude/ stay
+   director-only.
+7. Illegal changes to state/findings.json (takeover audit findings): no deletions; only the director records
+   the PO's verdict (accepted/rejected/deferred); engineers may only move a finding to `fixed`; only VERIFIERS
+   set `verified`.
 """
 import json
 import os
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import takeover as tk  # noqa: E402
 
 ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR", ".")).resolve()
 
@@ -38,20 +48,19 @@ CONTRACT_FIELDS = ("title", "story", "acceptance", "verification", "platforms", 
 MOBILE = {"react-native-engineer", "flutter-engineer", "swift-ios-engineer", "kotlin-android-engineer"}
 BACKEND = {"nodejs-backend-engineer", "python-backend-engineer", "go-backend-engineer"}
 BAAS = {"firebase-engineer", "supabase-engineer"}
-TESTERS = {"test-automation-engineer", "qa-engineer"}
+TESTERS = {"test-automation-engineer", "qa-engineer", "performance-engineer"}
 RELEASE = {"release-manager", "devops-engineer"}
 CYBER = {"security-lead", "appsec-code-auditor", "mobile-pentester", "api-cloud-pentester"}
 ENGINEERS = MOBILE | BACKEND | BAAS | TESTERS
+VERIFIERS = TESTERS | CYBER | {"code-reviewer"}
+PO_VERDICTS = ("accepted", "rejected", "deferred")
 
-# First matching rule wins. Paths are repo-relative POSIX. Empty set = no subagent may edit; None = any agent may.
-OWNERS = [
-    (re.compile(r"^(\.claude|company)/"), set()),
-    (re.compile(r"^state/handoff/[^/]+\.md$"), None),  # any agent writes its own pause handoff (usage_guard.py)
-    (re.compile(r"^state/feature_list\.json$"), {"solution-architect"} | ENGINEERS),
-    (re.compile(r"^state/security-findings\.json$"), CYBER | ENGINEERS),
-    (re.compile(r"^state/"), set()),
+TEST_DIRS = re.compile(r"(^|/)(tests?|__tests__|integration_test|test_driver|androidTest|e2e|[A-Za-z]*Tests)/")
+
+# Code lanes, also applied inside client/ in a takeover. First matching rule wins.
+CODE_LANES = [
     (re.compile(r"(^|/)fastlane/"), RELEASE),
-    (re.compile(r"(^|/)(tests?|__tests__|integration_test|test_driver|androidTest|e2e|[A-Za-z]*Tests)/"), ENGINEERS),
+    (TEST_DIRS, ENGINEERS),
     (re.compile(r"^apps/mobile/"), {"react-native-engineer", "flutter-engineer"}),
     (re.compile(r"^apps/ios/"), {"swift-ios-engineer"}),
     (re.compile(r"^apps/android/"), {"kotlin-android-engineer"}),
@@ -60,6 +69,19 @@ OWNERS = [
     (re.compile(r"^services/baas/supabase/"), {"supabase-engineer"}),
     (re.compile(r"^services/baas/"), BAAS),
     (re.compile(r"^(\.github|infra)/"), RELEASE),
+]
+# Customer files that steer agents (their instructions and Claude config): the director decides what changes there.
+CLIENT_META = re.compile(r"^((CLAUDE|AGENTS|CLAUDE\.local)\.md|\.claude/)")
+
+# First matching rule wins. Paths are repo-relative POSIX. Empty set = no subagent may edit; None = any agent may.
+OWNERS = [
+    (re.compile(r"^(\.claude|company)/"), set()),
+    (re.compile(r"^state/handoff/[^/]+\.md$"), None),  # any agent writes its own pause handoff (usage_guard.py)
+    (re.compile(r"^state/feature_list\.json$"), {"solution-architect"} | ENGINEERS),
+    (re.compile(r"^state/security-findings\.json$"), CYBER | ENGINEERS),
+    (re.compile(r"^state/findings\.json$"), None),  # every audit track appends; status flow in check_findings
+    (re.compile(r"^state/"), set()),
+    *CODE_LANES,
     (re.compile(r"^docs/change-requests/"), {"product-manager"}),
 ]
 
@@ -148,13 +170,69 @@ def check_project_json(old_text, new_text):
         block("Gate G3 is approved only by the PO via `! bash scripts/approve-release.sh`.")
 
 
+def lane_block(rel, agent, owners):
+    who = ", ".join(sorted(owners)) or "the delivery-director (main session) only"
+    block(f"{agent} may not edit {rel}; owner(s): {who}. Put the requested change in your output for the owner.")
+
+
 def check_lane(rel, agent):
     for pattern, owners in OWNERS:
         if pattern.search(rel):
             if owners is not None and agent not in owners:
-                who = ", ".join(sorted(owners)) or "the delivery-director (main session) only"
-                block(f"{agent} may not edit {rel}; owner(s): {who}. Put the requested change in your output for the owner.")
+                lane_block(rel, agent, owners)
             return
+
+
+def check_client(rel, inner, agent, in_subagent, project):
+    """client/ holds the customer's repository in a takeover."""
+    if not tk.writable(project):
+        block(f"{rel} is in the customer's repository, which stays read-only for everyone until the PO approves "
+              f"gate TG1. Record what you would change as a finding in state/findings.json (kb-legacy-audit).")
+    if not in_subagent:
+        return
+    if CLIENT_META.match(inner):
+        owners = set()
+    elif TEST_DIRS.search(inner):
+        owners = ENGINEERS
+    else:
+        owners = tk.owner_for(project, inner)
+        if owners is None:
+            owners = next((o for pattern, o in CODE_LANES if pattern.search(inner)), ENGINEERS | RELEASE)
+    if agent not in owners:
+        lane_block(rel, agent, owners)
+
+
+def check_findings(old_text, new_text, agent, in_subagent):
+    """Takeover audit findings: open -> accepted | rejected | deferred (the PO's verdict, recorded by the director)
+    -> fixed (engineers) -> verified (VERIFIERS; a failed re-test sends it back to accepted)."""
+    new = parse_json(new_text, "state/findings.json")
+    try:
+        old = json.loads(old_text) if old_text.strip() else {}
+    except ValueError:
+        old = {}
+    old_by_id = {f.get("id"): f for f in old.get("findings", [])}
+    missing = sorted(str(i) for i in set(old_by_id) - {f.get("id") for f in new.get("findings", [])})
+    if missing:
+        block(f"findings cannot be deleted: {missing}. A wrong or duplicate finding gets a note; the PO rejects it at TG1.")
+    if not in_subagent:
+        return
+    for nf in new.get("findings", []):
+        fid, of, new_status = nf.get("id"), old_by_id.get(nf.get("id")), nf.get("status")
+        if of is None:
+            if new_status not in (None, "open"):
+                block(f"{fid}: a new finding starts as `open`; the PO's verdict comes at gate TG1.")
+            continue
+        old_status = of.get("status")
+        if new_status == old_status:
+            continue
+        if new_status == "accepted" and old_status == "fixed" and agent in VERIFIERS:
+            continue  # re-test failed: back to the fix queue
+        if new_status in PO_VERDICTS or new_status == "open":
+            block(f"{fid}: `{new_status}` records the PO's verdict; only the delivery-director sets it.")
+        if new_status == "verified" and agent not in VERIFIERS:
+            block(f"{fid}: only QA, performance, Cyber Security or the code-reviewer mark a finding `verified` after re-testing.")
+        if new_status == "fixed" and agent not in ENGINEERS:
+            block(f"{fid}: only the engineer who fixed it moves a finding to `fixed`.")
 
 
 def check_security_findings(old_text, new_text, agent, in_subagent):
@@ -197,8 +275,13 @@ def main():
         return
     rel = rel_path(file_path)
     in_subagent = bool(data.get("agent_id"))
-    if in_subagent:
-        check_lane(rel, data.get("agent_type") or "unknown-subagent")
+    agent = data.get("agent_type") or "unknown-subagent"
+    project = tk.project()
+    inner = tk.inner(rel) if tk.active(project) else None
+    if inner is not None:
+        check_client(rel, inner, agent, in_subagent, project)
+    elif in_subagent:
+        check_lane(rel, agent)
     target = ROOT / rel
     try:
         current = target.read_text(encoding="utf-8") if target.is_file() else ""
@@ -216,7 +299,9 @@ def main():
     elif rel == "state/project.json":
         check_project_json(current, content)
     elif rel == "state/security-findings.json":
-        check_security_findings(current, content, data.get("agent_type") or "unknown-subagent", in_subagent)
+        check_security_findings(current, content, agent, in_subagent)
+    elif rel == "state/findings.json":
+        check_findings(current, content, agent, in_subagent)
     elif rel.startswith("docs/change-requests/"):
         check_change_request(rel, current, content, in_subagent)
 

@@ -57,21 +57,24 @@ def rel(path):
         return Path(path).as_posix()
 
 
-def git(*args):
+def git(*args, repo=ROOT):
     try:
-        return subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, timeout=60).stdout
+        return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, timeout=60).stdout
     except (OSError, subprocess.SubprocessError):
         return b""
 
 
-def fingerprint():
-    """Hash of the code as it is now; None outside a git repo."""
-    if not git("rev-parse", "--git-dir").strip():
+def fingerprint(cwd):
+    """Hash of the code as it is now in the git repo the command runs in (the workspace, or the customer's
+    client/ clone in a takeover, which the workspace ignores); None outside a git repo."""
+    top = git("rev-parse", "--show-toplevel", repo=cwd).decode("utf-8", "replace").strip()
+    if not top:
         return None
-    scope = ["--", ".", ":(exclude)state", ":(exclude)docs"]
-    h = hashlib.sha256(git("rev-parse", "HEAD") + git("diff", "HEAD", "--binary", *scope))
-    for name in sorted(git("ls-files", "--others", "--exclude-standard", "-z", *scope).split(b"\0")):
-        p = ROOT / name.decode("utf-8", "replace")
+    repo = Path(top).resolve()
+    scope = ["--", "."] + ([":(exclude)state", ":(exclude)docs"] if repo == ROOT else [])
+    h = hashlib.sha256(git("rev-parse", "HEAD", repo=repo) + git("diff", "HEAD", "--binary", *scope, repo=repo))
+    for name in sorted(git("ls-files", "--others", "--exclude-standard", "-z", *scope, repo=repo).split(b"\0")):
+        p = repo / name.decode("utf-8", "replace")
         if not name or not p.is_file():
             continue
         st = p.stat()
@@ -524,7 +527,7 @@ def main(argv):
     name = re.sub(r"[^\w.~-]+", "-", name)
     pol = policy()
     cacheable = not NO_CACHE.search(f"{name} {cmd}")
-    fp = fingerprint() if cacheable else None
+    fp = fingerprint(cwd) if cacheable else None
 
     last = next((e for e in reversed(read_index())
                  if e.get("name") == name and e.get("cmd") == cmd and e.get("cwd") == cwd_rel), None)

@@ -22,3 +22,9 @@ Precondition: `gates.G1_mvp_scope == "approved"`. Inputs: PRD, stories, flows, `
 6. Show the PO the design direction: palette, typography, 3–5 key screen specs (and Figma links if built). Ask for approval or adjustments via AskUserQuestion. (Not a formal gate, but PO taste matters.)
 
 Update state: `phase: "5-architecture"`; log; commit.
+
+## Takeover mode
+- The precondition is `gates.TG1_direction == "approved"` (it replaces G1).
+- Start from the existing design: the walkthrough screenshots, the T1 UX/UI reports and the existing design system in `client/` (tokens, components). Decide with the PO whether v2 **evolves** the current visual language or **replaces** it (a TG1 decision or an AskUserQuestion here).
+- Specify every screen touched by fix, rebuild or add stories, plus the shared components they change. Screens marked keep get a short spec only if the design system change alters them.
+- Each spec states "today → v2" with the current screenshot path, so engineers change what is intended and nothing else.
