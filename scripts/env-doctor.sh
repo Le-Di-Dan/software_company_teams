@@ -55,10 +55,12 @@ row() { printf '| %s | %s | %s |\n' "$1" "$2" "$3"; }
   if command -v xcodebuild >/dev/null 2>&1; then echo "- iOS build & simulator: YES"; else echo "- iOS build & simulator: NO → needs: mac"; fi
   if command -v adb >/dev/null 2>&1 || [ -n "${ANDROID_HOME:-}${ANDROID_SDK_ROOT:-}" ]; then echo "- Android build & emulator: YES"; else echo "- Android build & emulator: NO → needs: windows (or install Android Studio here)"; fi
   if command -v maestro >/dev/null 2>&1; then echo "- Maestro E2E: YES"; else echo "- Maestro E2E: NO (install: https://maestro.dev)"; fi
+  if command -v node >/dev/null 2>&1; then echo "- Web frontends build & Playwright E2E: YES (browsers are project-local: \`npx playwright install\` in tests/web-e2e/)"; else echo "- Web frontends: NO (needs Node.js LTS)"; fi
   echo
   echo "## Suggested MCP servers (add per machine, local scope)"
   echo "- iOS (mac): \`claude mcp add XcodeBuildMCP -- npx -y xcodebuildmcp@latest\`"
   echo "- E2E: \`claude mcp add maestro -- maestro mcp\` (after installing Maestro)"
+  echo "- Web frontends: \`claude mcp add playwright -- npx -y @playwright/mcp@latest\`"
   echo "- Firebase: \`claude mcp add firebase -- npx -y firebase-tools@latest mcp\`"
   echo "- Supabase: see https://supabase.com/docs/guides/getting-started/mcp"
 } > "$OUT"

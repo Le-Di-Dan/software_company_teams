@@ -11,6 +11,7 @@ A failing 10-minute test run must cost one run, not three. Run every such comman
 bash scripts/check.sh <name> [-C <dir>] -- <command>
 bash scripts/check.sh unit -C apps/mobile -- flutter test
 bash scripts/check.sh typecheck -C services/api -- npx tsc --noEmit
+bash scripts/check.sh web-e2e -C tests/web-e2e -- npx playwright test site/
 bash scripts/check.sh unit -C client/apps/mobile -- flutter test      # takeover: the customer's repo
 ```
 Call it from the project root; `-C` is the directory the command runs in. The cache follows the git repo the command runs in, so runs in `client/` are re-run when the customer's code changes. Name checks by what they verify (`unit`, `widget`, `typecheck`, `lint`, `api-tests`). A plain `flutter test`, `npx tsc`, `pytest`, `./gradlew …` is rewritten to `check.sh auto` by a hook, and the same commands piped into `tail`/`grep` or redirected to a file are blocked.

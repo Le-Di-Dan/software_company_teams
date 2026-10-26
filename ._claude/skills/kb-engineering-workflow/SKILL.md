@@ -23,7 +23,7 @@ Adapted from Anthropic's harness for long-running agents: state lives in files a
 
 ## 3. Verify (evidence or it didn't happen)
 - Run every command in the feature's `verification` list plus lint/typecheck/unit tests for touched modules, each through `bash scripts/check.sh` (kb-run-checks): on failure read the reported log lines, fix, re-run only the failures, then the full check once.
-- UI features: run on simulator/emulator available on this machine and save screenshots to `docs/07-qa/evidence/<feature-id>/`.
+- UI features: run on simulator/emulator available on this machine (web: in the browser via Playwright) and save screenshots to `docs/07-qa/evidence/<feature-id>/`.
 - If a verification step needs the other machine, run everything you can and tag the rest `needs: mac` or `needs: windows` in the feature's `notes`.
 
 ## 4. Update feature_list.json (hook-enforced rules)

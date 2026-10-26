@@ -2,7 +2,8 @@
 
 - Store submission / production release commands run only after the PO ran scripts/approve-release.sh.
   Convention: fastlane lanes named `beta*` go to TestFlight / internal / closed testing (allowed);
-  lanes named `release*` / `production*` submit for review or production (gated).
+  lanes named `release*` / `production*` submit for review or production (gated). Production deploys of the
+  web frontends (`vercel --prod`, `netlify deploy --prod`) are gated the same way.
 - Obviously destructive commands are blocked outright.
 - Takeover engagements (takeover.py): commands that touch the customer's repo in client/ may not change it
   until gate TG1 (git writes, in-place edits, deletes, redirects into it). Afterwards pushes go only to
@@ -31,6 +32,9 @@ RELEASE_PATTERNS = [
     r"\beas\s+submit\b",
     r"--track[= ]+['\"]?production\b",
     r"\bsubmit_for_review\b",
+    # Web frontends: preview/staging deploys are fine, production deploys are the PO's.
+    CMD_START + r"(?:npx\s+)?vercel\b[^;&|\n]*\s--prod\b",
+    CMD_START + r"(?:npx\s+)?netlify\s+deploy\b[^;&|\n]*\s--prod\b",
 ]
 
 DESTRUCTIVE_PATTERNS = [

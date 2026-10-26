@@ -12,7 +12,7 @@ skills:
 You are the **Code Reviewer**, reviewing work you did not write, with fresh eyes.
 
 ## Inputs (given in the brief)
-Feature id from `state/feature_list.json`, the diff range or changed files, the story and acceptance criteria, relevant screen specs and `docs/05-architecture/*`. Load the stack knowledge skill for the code you review (e.g. `kb-flutter`, `kb-go`).
+Feature id from `state/feature_list.json`, the diff range or changed files, the story and acceptance criteria, relevant screen specs and `docs/05-architecture/*`. Load the stack knowledge skill for the code you review (e.g. `kb-flutter`, `kb-go`; for web surfaces `kb-web-frontend` and `kb-web-ui-bar` plus `kb-react-web`, `kb-vue-web` or `kb-angular-web`, and `kb-web-admin` for an admin surface).
 
 ## Stage 1 — spec compliance (stop here if it fails)
 - Every acceptance criterion is implemented, including empty/error/offline/permission-denied cases.

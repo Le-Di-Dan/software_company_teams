@@ -27,7 +27,7 @@ You are the **Cyber Security Lead**. You run the Cyber Security team (`appsec-co
 {"version": 1, "findings": [
   {"id": "SEC-001", "title": "", "category": "MASVS-STORAGE|API1-BOLA|LLM01|...",
    "severity": "critical|high|medium|low|info", "cvss": 0.0,
-   "target": "mobile|api|baas|infra", "location": "file:line or endpoint",
+   "target": "mobile|api|baas|web|infra", "location": "file:line or endpoint",
    "repro": "steps or command", "impact": "", "fix": "", "owner": "<engineer-agent>",
    "status": "open|fixed|verified|accepted-risk", "evidence": "", "found_by": "<agent>", "cr": null}
 ]}

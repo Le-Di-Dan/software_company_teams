@@ -37,7 +37,7 @@ MAX_DIRS = 30
 INDEX_KEEP = 200
 SHOWN = 15
 # Environment-dependent runs, and builds whose point is the artifact (a cached pass would skip producing it).
-NO_CACHE = re.compile(r"maestro|integration|e2e|connectedAndroidTest|emulators:exec|patrol|detox|smoke"
+NO_CACHE = re.compile(r"maestro|playwright|integration|e2e|connectedAndroidTest|emulators:exec|patrol|detox|smoke"
                       r"|\bbuild\b|\bassemble|\bbundle|\barchive|-exportArchive|fastlane", re.I)
 ANSI = re.compile(rb"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07|\x1b[()][A-Z0-9]")
 
@@ -276,6 +276,8 @@ JEST_CASE = re.compile(r"^\s+● (.+)$")
 JEST_STOP = re.compile(r"^\s+● |^Test Suites:|^\s*(?:PASS|FAIL)\s+\S")
 VITEST_FAIL = re.compile(r"^\s*FAIL\s+(\S+\.(?:[cm]?[jt]sx?))\s+>\s+(.+?)\s*$")
 VITEST_STOP = re.compile(r"^\s*FAIL\s+\S+\s+>|^\s*⎯{3,}|^\s*Test Files\s")
+PLAYWRIGHT_FAIL = re.compile(r"^\s+\d+\) \[[^\]]+\] › (\S+?):(\d+):\d+ › (.+?)(?:\s+─+)?\s*$")
+PLAYWRIGHT_STOP = re.compile(r"^\s+\d+\) \[[^\]]+\] › |^\s+\d+ (?:failed|flaky|passed|skipped|did not run)\b")
 PYTEST_HEAD = re.compile(r"^_{3,} (.+?) _{3,}$")
 PYTEST_STOP = re.compile(r"^_{3,} .+ _{3,}$|^={3,} ")
 PYTEST_SUMMARY = re.compile(r"^(?:FAILED|ERROR) (\S+::\S+|\S+\.py)")
@@ -300,6 +302,8 @@ STATS = [
     re.compile(r"^=*\s*(\d+ (?:failed|passed|errors?)\b.*?) in [\d.]+s"),    # pytest
     re.compile(r"(\d+ tests? completed, \d+ failed.*)"),                    # gradle
     re.compile(r"(Executed \d+ tests?, with \d+ failures?)"),               # xcodebuild
+    re.compile(r"(Executed \d+ of \d+ .*?(?:SUCCESS|FAILED)\)?)"),          # karma (older Angular)
+    re.compile(r"^\s*(\d+ passed \([\d.]+m?s\))"),                         # playwright
     re.compile(r"^(\d+ issues? found)"),                                    # dart / flutter analyze
     re.compile(r"^(Found \d+ errors?.*)"),                                  # tsc
     re.compile(r"(\d+ problems? \(.*\))"),                                  # eslint
@@ -309,6 +313,7 @@ STATS = [
 def analyse(lines, cmd, cwd):
     """Failures [{label, start, end}], re-run hint parts and a stats string, from the cleaned log."""
     fails, flutter, jest, pytest_ids, go_tests, go_pkgs, gradle, xctests = [], [], [], [], [], [], [], []
+    playwright = []
     seen = set()
 
     def add(label, start, end):
@@ -323,6 +328,9 @@ def analyse(lines, cmd, cwd):
             flutter.append([loading or file, test])
             add(f"{file}: {test}" if file else test or f"{loading}: failed to load", i,
                 block_end(lines, i, FLUTTER_PROGRESS))
+        elif m := PLAYWRIGHT_FAIL.match(line):
+            playwright.append(f"{m.group(1)}:{m.group(2)}")
+            add(f"{m.group(1)}:{m.group(2)} {m.group(3)[:100]}", i, block_end(lines, i, PLAYWRIGHT_STOP, 80))
         elif m := VITEST_FAIL.match(line):
             jest.append((m.group(1), m.group(2).split(" > ")[-1]))
             add(f"{m.group(1)} > {m.group(2)}", i, block_end(lines, i, VITEST_STOP))
@@ -379,7 +387,12 @@ def analyse(lines, cmd, cwd):
         stats = ", ".join(x for x in (f"{passed} passed", failed and f"{failed} failed", skipped and f"{skipped} skipped") if x)
     if not stats and go_tests:
         stats = f"{len(go_tests)} failed"
-    hint = rerun_hint(cmd, flutter, jest, pytest_ids, go_tests, go_pkgs, gradle, xctests, fails)
+    if playwright:
+        failed = next((m.group(1) for line in lines[-200:] if (m := re.match(r"^\s*(\d+ failed)\s*$", line))), "")
+        stats = ", ".join(x for x in (failed, stats) if x)
+        hint ="npx playwright test " + " ".join(shlex.quote(t) for t in sorted(set(playwright))[:20])
+    else:
+        hint = rerun_hint(cmd, flutter, jest, pytest_ids, go_tests, go_pkgs, gradle, xctests, fails)
     return fails, hint, stats
 
 
@@ -404,6 +417,8 @@ def rerun_hint(cmd, flutter, jest, pytest_ids, go_tests, go_pkgs, gradle, xctest
         name = f" -t {q(jest[0][1])}" if len(jest) == 1 else ""
         if re.match(r"(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?test\b", cmd):
             return f"{cmd} -- {' '.join(q(f) for f in files)}{name}"
+        if re.search(r"\bng\s+test\b", cmd):  # Angular's builder runs the tests; narrow it with --include
+            return f"{cmd} " + " ".join(f"--include {q(f)}" for f in files)
         tool = "npx vitest run" if "vitest" in cmd else "npx jest"
         return f"{tool} {' '.join(q(f) for f in files)}{name}"
     if pytest_ids:

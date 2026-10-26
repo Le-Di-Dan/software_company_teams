@@ -7,7 +7,7 @@ description: Phase 7 - full QA and hardening on iOS and Android - test plan exec
 
 ## Parallel kickoff (one message)
 - `qa-engineer`: execute `docs/07-qa/test-plan.md` (write it first if missing) on this machine's platform; exploratory testing incl. store-reviewer path; report in `docs/07-qa/reports/`; bugs in `docs/07-qa/bugs.md`.
-- `test-automation-engineer`: run the full automated suite (unit, integration, Maestro E2E on available simulators/emulators); report failures and flakiness.
+- `test-automation-engineer`: run the full automated suite (unit, integration, Maestro E2E on available simulators/emulators, Playwright for each web surface); report failures and flakiness.
 - `security-lead`: run the `security-assessment` skill (full) — directs appsec-code-auditor + mobile-pentester + api-cloud-pentester, collects into `state/security-findings.json`, writes the per-area reports in `docs/07-qa/`.
 - `uiux-rnd-researcher`: final UI bar review from QA screenshots → `docs/04-design/uiux-rnd-review.md` (final section).
 
@@ -20,6 +20,7 @@ Anything `needs: windows` or `needs: mac` gets a checklist in `docs/07-qa/pendin
 ## Exit criteria (QA sign-off)
 - 0 open blocker/critical bugs; major bugs fixed or explicitly accepted by the PO.
 - E2E green on iOS and Android (both machines), crash-free in TestFlight / closed test so far.
+- Web surfaces (if any): Playwright suites green against staging on Chromium, Firefox and WebKit; no serious/critical axe violations; Core Web Vitals budget met on key public pages (Lighthouse); `kb-web-ui-bar` has no FAIL on key pages; admin role-denied cases pass.
 - Security: `state/security-findings.json` has no open Critical/High (fixed+verified or PO-accepted). UI bar: no FAIL on core screens.
 
 Then `phase: "8-release"`; log; commit.

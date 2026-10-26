@@ -1,6 +1,6 @@
 # Mobile App Software Company — Operating Manual
 
-This repository is an AI software company that turns a Product Owner's (PO) rough app idea into a store-ready mobile app, or takes over a PO's existing app and turns it into one (see "Takeover engagements").
+This repository is an AI software company that turns a Product Owner's (PO) rough app idea into a store-ready mobile app, or takes over a PO's existing app and turns it into one (see "Takeover engagements"). It also builds the web frontends around the product (marketing site, web app / PWA, customer portal, dashboards, admin console) with its React, Vue and Angular teams; rules in `.claude/skills/kb-web-frontend`.
 The main session runs as `delivery-director`. Every other role is a subagent in `.claude/agents/<department>/`.
 Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `company/templates/`; store checklists in `company/compliance/`.
 
@@ -12,7 +12,7 @@ Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `c
 4. **Evidence, not assertions.** "Done" means a command and its output, a test report, or a screenshot path. Never mark a feature `passes: true` without running its verification.
 5. **Stay in your lane.** Edit only the paths your role owns (see the ownership table). To change something you don't own, write the request in your output for its owner.
 6. **Disagree in writing.** If an input is wrong, risky, or weak, say so in a `## Challenges` section with evidence and an alternative. Do not silently "fix" another team's decision.
-7. **PO-only actions.** Agents never: submit to App Store / Google Play for review or production, create or pay for accounts, deploy to production, purchase anything, or set `po_release_approval`. Prepare everything; the PO pulls the trigger.
+7. **PO-only actions.** Agents never: submit to App Store / Google Play for review or production, create or pay for accounts, deploy to production (backend or web), purchase anything, or set `po_release_approval`. Prepare everything; the PO pulls the trigger.
 8. **Secrets never enter git.** Use `.env*` files or `secrets/` (gitignored). Document required keys in `docs/05-architecture/secrets.md` (names only, no values).
 9. **Two machines.** The repo is shared between a Mac (Xcode, iOS) and a Windows PC (Android toolchain). Before running a toolchain command, check `state/environment.md`; if a tool is missing here, record the task as `needs: mac` or `needs: windows` instead of failing or installing system software unasked.
 10. **Production quality, not demo quality.** UI must meet `.claude/skills/kb-production-ui-bar`. Minimal/placeholder UI is a defect.
@@ -35,7 +35,7 @@ Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `c
 | 3 Review board (MVP scope) | `review-board` | devils-advocate + panel | **G1** PO approves MVP scope |
 | 4 Design | `phase-4-design` | ui-designer, ux-writer, uiux-rnd | design passes UI bar review |
 | 5 Architecture & setup | `phase-5-architecture` | solution-architect, security-lead | **G2** PO approves stack; project builds |
-| 6 Build loop | `phase-6-build` | selected mobile/backend/BaaS teams, code-reviewer | all features `passes: true` |
+| 6 Build loop | `phase-6-build` | selected mobile/backend/BaaS/web teams, code-reviewer | all features `passes: true` |
 | 7 QA & hardening | `phase-7-qa` | qa-engineer, test-automation, cyber-security team | QA sign-off + security clearance |
 | 8 Release readiness | `phase-8-release` | release-manager, store-compliance, privacy-legal, aso | **G3** PO approves & submits |
 | 9 Maintain | `phase-9-maintain` | support-feedback, data-analyst | ongoing |
@@ -69,9 +69,10 @@ Rules for every agent:
 state/            project.json (phase, gates, stack), feature_list.json, progress.md, open-questions.md, environment.md
 docs/00-intake/ … docs/09-maintain/   artifacts per phase (one folder per phase)
 apps/mobile/      React Native or Flutter app        apps/ios/  Swift app        apps/android/  Kotlin app
+apps/web/<surface>/  web frontends: site, app, portal, dashboard, admin (React/Next.js | Vue/Nuxt | Angular; SSG, SSR or SPA)
 services/api/     custom backend (Node.js | Python | Go)
 services/baas/    firebase/ or supabase/ project config, rules, functions, migrations
-tests/e2e/        Maestro flows (shared by iOS and Android)
+tests/e2e/        Maestro flows (shared by iOS and Android)       tests/web-e2e/  Playwright specs per web surface
 company/          templates, compliance checklists, framework research (do not edit during a project)
 client/           takeover only: the customer's repository (own git, gitignored here); code lives here instead of apps/ services/
 docs/t0-engagement/ … docs/t4-transition/   takeover artifacts per phase; docs/t1-discovery/evidence/ screenshots and logs
@@ -100,10 +101,11 @@ docs/t0-engagement/ … docs/t4-transition/   takeover artifacts per phase; docs
 | `docs/07-qa/*pentest*.md`, `*appsec*.md` | cyber-security team (security-lead, appsec-code-auditor, mobile-pentester, api-cloud-pentester) |
 | `docs/07-qa/` | qa-engineer, test-automation-engineer |
 | `docs/08-release/` | release-manager, store-compliance-officer, privacy-legal-counsel, aso-marketing-specialist |
-| `apps/**` | the selected mobile team only |
+| `apps/web/**` | the selected web teams only (frontend-react-engineer / frontend-vue-engineer / frontend-angular-engineer, per surface in `stack.web`) |
+| `apps/**` (other) | the selected mobile team only |
 | `services/api/**` | the selected backend team only |
 | `services/baas/**` | the selected BaaS team only |
-| `tests/e2e/**`, `**/test*/**` | test-automation-engineer, qa-engineer, performance-engineer (benchmarks) (+ engineers for unit tests of their code) |
+| `tests/e2e/**`, `tests/web-e2e/**`, `**/test*/**` | test-automation-engineer, qa-engineer, performance-engineer (benchmarks) (+ engineers for unit tests of their code) |
 | `.github/`, `infra/`, `**/fastlane/`, `scripts/` (except framework scripts) | devops-engineer, release-manager |
 | `docs/change-requests/` | product-manager drafts; only delivery-director sets `Status: approved` |
 | `.claude/`, `company/` | framework files — no subagent edits (propose changes in your report) |

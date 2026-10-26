@@ -15,6 +15,8 @@
 - What should the app explicitly NOT do?
 - Accounts needed? Sync across devices? Offline use? Social/sharing? User-generated content?
 - Content source: who creates the content (us, AI, users, licensed)? Who maintains it?
+- Web presence: a landing/marketing site? A web version of the product (in the browser, installable PWA)? A customer account page (subscription, data export, account deletion)? Dashboards for partners or creators?
+- Running the app after launch: who manages content, users, support requests, refunds, reported content, push campaigns? Is a BaaS console enough, or do you need an admin website (how many staff, which roles)?
 
 ## Platforms & markets
 - iOS, Android, or both at launch? Tablets? Apple Watch / widgets?

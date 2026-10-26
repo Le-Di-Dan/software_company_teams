@@ -231,7 +231,8 @@ def guard_bash(data, pol):
 CHECK_TOOL = re.compile(r"""(?x) ^ (?:\w+=\S*\s+)* (?:(?:npx|bunx|pnpm\s+exec|yarn\s+exec|fvm)\s+)? (?:
       flutter\s+(?:test|analyze|build)\b | dart\s+(?:test|analyze)\b
     | (?:npm|pnpm|yarn|bun)\s+(?:test\b|run\s+(?:test|lint|build|typecheck|type-check|check)\S*)
-    | (?:tsc|jest|vitest|eslint|pytest|mypy|pyright)\b | python3?\s+-m\s+pytest\b | ruff\s+check\b
+    | (?:tsc|vue-tsc|jest|vitest|eslint|pytest|mypy|pyright)\b | python3?\s+-m\s+pytest\b | ruff\s+check\b
+    | ng\s+(?:test|lint|build)\b | playwright\s+test\b
     | go\s+(?:test|vet|build)\b | golangci-lint\s+run\b | (?:\./)?gradlew(?:\.bat)?\s | gradle\s
     | xcodebuild\b | swift\s+(?:test|build)\b | maestro\s+test\b )""")
 NOT_A_CHECK = re.compile(r"--watch\b|\s-w\b|--version\b|--help\b|\s-h\b|\bxcodebuild\s+-(?:list|showsdks|version)\b")

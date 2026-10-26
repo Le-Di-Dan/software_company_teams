@@ -48,10 +48,11 @@ CONTRACT_FIELDS = ("title", "story", "acceptance", "verification", "platforms", 
 MOBILE = {"react-native-engineer", "flutter-engineer", "swift-ios-engineer", "kotlin-android-engineer"}
 BACKEND = {"nodejs-backend-engineer", "python-backend-engineer", "go-backend-engineer"}
 BAAS = {"firebase-engineer", "supabase-engineer"}
+WEB = {"frontend-react-engineer", "frontend-vue-engineer", "frontend-angular-engineer"}
 TESTERS = {"test-automation-engineer", "qa-engineer", "performance-engineer"}
 RELEASE = {"release-manager", "devops-engineer"}
 CYBER = {"security-lead", "appsec-code-auditor", "mobile-pentester", "api-cloud-pentester"}
-ENGINEERS = MOBILE | BACKEND | BAAS | TESTERS
+ENGINEERS = MOBILE | BACKEND | BAAS | WEB | TESTERS
 VERIFIERS = TESTERS | CYBER | {"code-reviewer"}
 PO_VERDICTS = ("accepted", "rejected", "deferred")
 
@@ -64,6 +65,7 @@ CODE_LANES = [
     (re.compile(r"^apps/mobile/"), {"react-native-engineer", "flutter-engineer"}),
     (re.compile(r"^apps/ios/"), {"swift-ios-engineer"}),
     (re.compile(r"^apps/android/"), {"kotlin-android-engineer"}),
+    (re.compile(r"^apps/web/"), WEB),
     (re.compile(r"^services/api/"), BACKEND),
     (re.compile(r"^services/baas/firebase/"), {"firebase-engineer"}),
     (re.compile(r"^services/baas/supabase/"), {"supabase-engineer"}),

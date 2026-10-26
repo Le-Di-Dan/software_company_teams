@@ -14,7 +14,8 @@
   "stack": {
     "mobile": null,
     "backend": null,
-    "baas": null
+    "baas": null,
+    "web": {}
   },
   "squad": [],
   "po_release_approval": false,

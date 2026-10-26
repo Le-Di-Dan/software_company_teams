@@ -13,11 +13,11 @@ Run by the director, driven by `security-lead`. Argument `$ARGUMENTS` selects sc
 - Rules of engagement (remind every agent): authorized targets are this company's own local/emulator/staging only — never production, third-party services, or other people's accounts; no DoS/load attacks. Tool images pull via Docker with the PO's OK (ask once, record in `state/open-questions.md`).
 
 ## Steps
-1. **Scope & threat model** → `security-lead`: refresh `docs/05-architecture/security-review.md` / threat model, decide which targets are in scope (mobile / api / baas / ai) and the MAS profile. Ensure `state/security-findings.json` exists (create from the schema in `security-lead` if missing).
+1. **Scope & threat model** → `security-lead`: refresh `docs/05-architecture/security-review.md` / threat model, decide which targets are in scope (mobile / api / baas / ai / web surfaces) and the MAS profile. Ensure `state/security-findings.json` exists (create from the schema in `security-lead` if missing).
 2. **Parallel assessment** (one message, brief each with scope + rules of engagement):
    - `appsec-code-auditor` → semgrep + gitleaks + dependency scan on the repo → `docs/07-qa/appsec-audit-<date>.md`.
    - `mobile-pentester` (if a build exists) → MobSF + storage + mitmproxy + platform tests → `docs/07-qa/mobile-pentest-<date>.md`.
-   - `api-cloud-pentester` (if a backend/BaaS runs) → API Top 10 + Rules/RLS + LLM Top 10 → `docs/07-qa/api-cloud-pentest-<date>.md`.
+   - `api-cloud-pentester` (if a backend/BaaS runs) → API Top 10 + Rules/RLS + LLM Top 10, plus the web surfaces when they exist (XSS/CSRF, CSP and headers, secrets in bundles, SSR server routes, role escalation on admin) → `docs/07-qa/api-cloud-pentest-<date>.md`.
    Each appends findings to `state/security-findings.json`.
 3. **Triage** → `security-lead`: de-duplicate, set severity + CVSS, assign owners; summarize counts and top risks.
 4. **Fix loop**: for each open Critical/High (then Medium) the director delegates to the owning engineer → `code-reviewer` → the finding's pentester/auditor re-tests and sets `verified` (or re-opens). Only the Cyber Security team sets `verified`.

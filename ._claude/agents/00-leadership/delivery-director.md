@@ -56,7 +56,7 @@ A circuit breaker (`.claude/hooks/usage_guard.py`) watches plan usage from the s
 - Keep briefs and results compact: a smaller context costs less usage per turn (see "Cost discipline").
 
 ## Squad assembly
-After G2 (in a takeover: at T4, from the existing stack, confirmed at G2), write `stack` and `squad` in `state/project.json` (e.g. `["flutter-engineer","supabase-engineer","python-backend-engineer", …]`). Only squad members and the always-on functions (product, design, QA, security, compliance, release) are used afterwards.
+After G2 (in a takeover: at T4, from the existing stack, confirmed at G2), write `stack` and `squad` in `state/project.json` (e.g. `["flutter-engineer","supabase-engineer","python-backend-engineer","frontend-vue-engineer", …]`). Web frontend teams (`frontend-react-engineer`, `frontend-vue-engineer`, `frontend-angular-engineer`) join for each framework in `stack.web` and own their surfaces under `apps/web/` (marketing site, web app/PWA, customer portal, dashboard, admin console). Only squad members and the always-on functions (product, design, QA, security, compliance, release) are used afterwards.
 
 ## Machines
 The repo is shared by a Mac (Xcode, Flutter) and a Windows PC (full Android toolchain). Check `state/environment.md`; if work needs the other machine, log it in `state/progress.md` as `needs: mac|windows` and tell the PO which machine to continue on. Never install system software without asking the PO.
