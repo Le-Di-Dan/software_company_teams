@@ -6,9 +6,12 @@ Một "công ty phần mềm" gồm **36 AI agent** chạy trong Claude Code đ�
 
 ```bash
 git clone <repo-template-này> my-new-app && cd my-new-app
-bash scripts/env-doctor.sh      # ghi lại máy này build được gì (iOS/Android)
+bash scripts/setup.sh           # đổi ._claude → .claude, _CLAUDE.md → CLAUDE.md, rồi ghi lại máy này build được gì
+git add -A && git commit -m "Set up company project"
 claude                          # session tự chạy với vai trò delivery-director
 ```
+
+Trong repo template, framework được cất dưới tên `._claude/` và `_CLAUDE.md` để khi phát triển chính framework, Claude Code không nạp agent, hook và sổ tay của công ty (không bị nhầm repo template là dự án app). Git không cho chạy script tự động khi clone, nên `scripts/setup.sh` là bước bắt buộc ngay sau khi clone. Script chạy lại an toàn (ví dụ trên máy thứ hai: không còn gì để đổi tên, chỉ chạy `env-doctor.sh`).
 
 Director sẽ chào bạn, đọc trạng thái hiện tại và mời bạn mô tả ý tưởng. Muốn xem tiến độ bất cứ lúc nào, gõ `/company-status` (báo cáo chữ) hoặc `/company-dashboard` (bản đồ "trụ sở" isometric: mỗi phòng ban là một tòa nhà, mỗi phòng có một trưởng phòng hoạt hình đi giao việc, sang phòng khác trao đổi và về báo cáo đúng theo việc các sub-agent đang làm — xuất ra một trang web chia sẻ được).
 
@@ -63,11 +66,21 @@ Mỗi app chỉ dùng một **squad**: Architect đề xuất một team mobile,
 - **Chặn bí mật:** API key, private key, service_role key không được ghi vào file nằm trong git.
 - **Hành động chỉ PO được làm:** submit lên store, đẩy track production, và lệnh duyệt G3 đều bị chặn với agent.
 - **Lỗ hổng bảo mật:** `state/security-findings.json` theo dõi mọi lỗ hổng. Team dev chỉ được chuyển lỗi sang `fixed`, chỉ team Cyber Security được `verified`, chỉ PO được chấp nhận rủi ro. Lệnh duyệt G3 tự động từ chối nếu còn lỗi Critical/High chưa xử lý.
-- **Cầu dao usage:** thanh trạng thái hiện mức usage 5 giờ / 7 ngày của gói Pro/Max. Với cửa sổ 5 giờ: từ **75%** giám đốc ngừng giao việc mới, từ **80%** mọi agent dừng lại. Cửa sổ 7 ngày có ngưỡng riêng **95% / 98%** (75% của tuần vẫn còn tương đương nhiều phiên 5 giờ, còn dừng theo tuần thì phải chờ nhiều ngày). Khi dừng, mọi agent ghi bàn giao vào `state/handoff/`, và giám đốc báo bạn giờ reset. Sau reset chạy `claude --continue`, giám đốc tự nạp bàn giao (skill `/resume-work`) và giao lại đúng việc cho đúng agent. Ngưỡng chỉnh trong `state/project.json → usage_policy` (`soft_pct`/`hard_pct` cho 5 giờ, `seven_day_soft_pct`/`seven_day_hard_pct` cho 7 ngày); muốn tạm dừng thủ công: `! touch state/handoff/PAUSE` (tiếp tục: `! rm state/handoff/PAUSE`).
+- **Cầu dao usage:** thanh trạng thái hiện gói tài khoản và mức usage 5 giờ / 7 ngày. Mỗi đầu phiên, hook tự nhận diện gói qua `claude auth status` và `~/.claude.json` (chỉ đọc thông tin hồ sơ, không đọc token) rồi lưu vào `state/account.json` (riêng từng máy). Ngưỡng phụ thuộc gói, vì phần việc còn chạy sau khi cầu dao nhảy (agent làm nốt việc, ghi bàn giao) tốn số token gần như nhau ở mọi gói, nên gói lớn chỉ cần chừa ít phần trăm hơn:
+
+  | Gói | 5 giờ: ngừng giao việc / dừng hẳn | 7 ngày: ngừng giao việc / dừng hẳn |
+  |---|---|---|
+  | Pro | 75% / 80% | 95% / 98% |
+  | Max 5x | 82% / 88% | 96% / 98% |
+  | Max 20x | 88% / 93% | 97% / 99% |
+  | API (trả theo token) | 85% / 95% của `budget_usd` | — |
+
+  Cửa sổ 7 ngày chỉ nhảy khi rất gần giới hạn, vì 75% của tuần vẫn còn tương đương nhiều phiên 5 giờ, còn dừng theo tuần thì phải chờ nhiều ngày. Với API key không có cửa sổ giới hạn: nếu không đặt `budget_usd`, cầu dao không bao giờ nhảy và giám đốc sẽ nhắc bạn điều đó. Khi dừng, mọi agent ghi bàn giao vào `state/handoff/`, và giám đốc báo bạn giờ reset. Sau reset chạy `claude --continue`, giám đốc tự nạp bàn giao (skill `/resume-work`) và giao lại đúng việc cho đúng agent. Chỉnh trong `state/project.json → usage_policy`: `plan` (`auto` hoặc ghim `api`/`pro`/`max5x`/`max20x` nếu nhận diện sai), `budget_usd` cho API, `plans` để đổi ngưỡng một gói (ví dụ `{"max5x": {"soft_pct": 85}}`; các khoá `soft_pct`/`hard_pct` cho 5 giờ, `seven_day_soft_pct`/`seven_day_hard_pct` cho 7 ngày; đặt các khoá đó thẳng trong `usage_policy` thì áp cho mọi gói); muốn tạm dừng thủ công: `! touch state/handoff/PAUSE` (tiếp tục: `! rm state/handoff/PAUSE`).
 - **Tiết kiệm token** (`cost_guard.py`, cấu hình ở `state/project.json → cost_policy`):
   - **Chọn model tự động theo `profile`.** `economy` (mặc định) dùng Opus cho devils-advocate, solution-architect, code-reviewer, product-manager và security-lead; `balanced` thêm Opus cho các nhóm R&D và monetization; `quality` thêm BA, compliance và legal. Muốn ghim riêng một agent thì dùng `model_overrides`, ví dụ `{"product-manager": "opus"}`.
   - **Không gọi lại agent đã nghỉ quá 4 phút** (`resume_idle_min`). Cache của sub-agent chỉ sống 5 phút, nên trường hợp đó công ty tạo agent mới đọc lại file thay vì gọi agent cũ.
   - **Đọc gọn.** Tài liệu trên 30KB phải đọc theo từng phần (tối đa 200 dòng mỗi lần); hook chặn `cat`/`sed` đổ cả file và gửi lại dàn ý của file cho agent.
+  - **Chạy build/test một lần, đọc đúng chỗ lỗi** (`scripts/check.sh`, skill `kb-run-checks`). Mọi lệnh build/test/lint/typecheck (`flutter test`, `npx tsc`, `jest`, `pytest`, `./gradlew`, `xcodebuild`…) được hook tự chạy qua `check.sh`: log đầy đủ lưu ở `state/runs/`, agent chỉ nhận một dòng khi pass, còn khi fail thì nhận danh sách test lỗi kèm số dòng trong log và lệnh chạy lại riêng phần lỗi. Nhờ vậy không còn cảnh chạy lại một lệnh 10–15 phút chỉ để xem output. Lệnh build/test bị pipe sang `tail`/`grep` hoặc redirect ra file sẽ bị chặn. Code không đổi (HEAD + thay đổi chưa commit + file mới) thì trả kết quả lần trước ngay lập tức (`--fresh` để ép chạy; e2e/integration và build không bao giờ dùng cache). Log tự dọn: pass thì xoá log fail cũ của check đó, ngoài ra giới hạn 3 ngày, 3 log fail mỗi check, tổng 200 MB, mỗi log 20 MB (`cost_policy`: `runs_max_age_days`, `runs_keep_failed`, `runs_max_mb`, `runs_max_log_mb`). Cần giữ log làm bằng chứng thì thêm `--keep <feature-id>` (copy sang `docs/07-qa/evidence/`), muốn xoá sạch thì chạy `bash scripts/check.sh --clean`.
   - **Song song tối đa 3 agent** (`max_parallel`). Context tự compact khi đạt 300K token (`autoCompactWindow` trong `.claude/settings.json`).
   - **Ngôn ngữ.** Tài liệu nội bộ viết bằng tiếng Anh (`doc_language: en`, ít token hơn tiếng Việt nhiều); mọi thứ PO đọc vẫn bằng tiếng Việt.
 - **Lệnh nguy hiểm** như `rm -rf` thư mục gốc hay force-push đều bị chặn.
@@ -96,6 +109,8 @@ MCP nên cài theo máy (gợi ý có trong `state/environment.md`): XcodeBuildM
 
 ## Cấu trúc repo
 
+Sau khi chạy `scripts/setup.sh` (trong repo template là `_CLAUDE.md` và `._claude/`):
+
 ```
 CLAUDE.md                 Sổ tay vận hành (mọi agent đều đọc)
 .claude/agents/           36 agent, chia theo phòng ban
@@ -108,7 +123,7 @@ company/research/         tài liệu research khi xây dựng framework này
 state/                    trạng thái dự án (pha, gate, stack, feature list, tiến độ)
 docs/00-intake … 09-maintain   sản phẩm của từng pha
 apps/  services/  tests/e2e/   code (sinh ra từ pha 5)
-scripts/                  env-doctor.sh, approve-release.sh (+ smoke.sh do DevOps tạo)
+scripts/                  setup.sh, env-doctor.sh, check.sh, approve-release.sh, dashboard.py (+ smoke.sh do DevOps tạo)
 ```
 
 ## Tuỳ chỉnh

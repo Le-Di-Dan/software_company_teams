@@ -15,6 +15,8 @@ service-account*.json
 state/environment.md
 .claude/settings.local.json
 .claude/agent-memory-local/
+._claude/settings.local.json
+._claude/agent-memory-local/
 
 # OS / editors
 .DS_Store
@@ -42,8 +44,13 @@ state/activity.jsonl
 state/activity.jsonl.tmp
 .playwright-mcp/
 
-# Usage circuit breaker (machine-local): status-line reading, pause markers, manual pause switch
+# Usage circuit breaker (machine-local): status-line reading, detected account plan, pause markers, manual pause switch
 state/usage.json
 state/usage.json.tmp
+state/account.json
+state/account.json.tmp
+
+# Check runner logs (scripts/check.sh): self-pruning, machine-local
+state/runs/
 state/handoff/.*.paused
 state/handoff/PAUSE
