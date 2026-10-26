@@ -1,6 +1,6 @@
 # Mobile App Software Company — Claude Code template
 
-Một "công ty phần mềm" gồm **36 AI agent** chạy trong Claude Code để biến một ý tưởng app còn mơ hồ thành app mobile sẵn sàng publish lên App Store và Google Play. Bạn là **Product Owner (PO)**: bạn đưa ý tưởng, trả lời các câu hỏi audit và ra quyết định ở 4 cổng duyệt. Phần còn lại do công ty tự làm, gồm research, thiết kế, code, QA, compliance và chuẩn bị release.
+Một "công ty phần mềm" gồm **37 AI agent** chạy trong Claude Code để biến một ý tưởng app còn mơ hồ thành app mobile sẵn sàng publish lên App Store và Google Play, hoặc tiếp nhận một app bạn đã làm để chẩn đoán và làm lại cho tới khi kiếm được tiền. Bạn là **Product Owner (PO)**: bạn đưa ý tưởng, trả lời các câu hỏi audit và ra quyết định ở 4 cổng duyệt. Phần còn lại do công ty tự làm, gồm research, thiết kế, code, QA, compliance và chuẩn bị release.
 
 ## Bắt đầu một app mới
 
@@ -18,6 +18,35 @@ Director sẽ chào bạn, đọc trạng thái hiện tại và mời bạn mô
 Xem trụ sở **trực tiếp** trong lúc công ty đang chạy: mở một terminal khác và chạy `python3 scripts/dashboard.py --open` (Windows: `py -3 scripts/dashboard.py --open`), trình duyệt mở http://127.0.0.1:8765 và tự cập nhật mỗi 2 giây.
 
 > Lần đầu mở repo, Claude Code sẽ hỏi bạn có tin tưởng thư mục này không. Hãy chọn trust để hooks và agents được nạp.
+
+## Tiếp nhận một app có sẵn (takeover)
+
+Dùng khi bạn đã có app (do bạn hoặc bên khác làm) nhưng thấy "chưa ổn" mà chưa chỉ ra được chỗ nào. Công ty làm như một công ty outsource nhận dự án. Thứ tự là: chẩn đoán app, nghiên cứu thị trường, đưa ra báo cáo đánh giá kèm 2–3 phương án, bạn chọn một phương án, rồi mới làm lại.
+
+Mỗi app tiếp nhận có một **workspace riêng**. Workspace là bản clone của template, còn repo app được clone vào thư mục con `client/` bên trong:
+
+```bash
+git clone <repo-template-này> ten-app-company && cd ten-app-company
+bash scripts/setup.sh --takeover https://github.com/<ban>/<repo-app>.git   # tuỳ chọn: --ref <branch|tag|sha>
+cp ../<thư-mục-app-của-bạn>/.env client/.env   # chỉ bạn làm; script in ra danh sách các file .env cần có
+git add -A && git commit -m "Set up takeover workspace"
+claude
+```
+
+- **Hai repo tách biệt.** Workspace giữ tài liệu, trạng thái và agent của công ty. `client/` là repo app với lịch sử git của riêng nó; workspace bỏ qua thư mục này (`.gitignore`). Bản làm việc của bạn ở chỗ khác, công ty không đụng tới.
+- **`CLAUDE.md` của app cũ không điều khiển agent.** `claudeMdExcludes` chặn nó khỏi phần chỉ dẫn. Ở T0, BA rút các quy tắc của app ra và phân loại GIỮ / XEM LẠI / BỎ; bạn duyệt. Các quy tắc giữ lại được ghi vào `.claude/rules/client.md` và chỉ nạp khi agent làm việc trong `client/`.
+- **Chỉ đọc cho tới TG1.** Trong lúc chẩn đoán, agent được build, chạy và test app nhưng không được sửa gì (hook chặn). Mọi phát hiện được ghi vào `state/findings.json`, kèm bằng chứng và ảnh hưởng tới doanh thu.
+- **Sau TG1** công ty làm trên branch `company/v2` của repo app rồi mở pull request; **bạn là người merge trên GitHub**. Hook chặn push lên `main`, chặn force-push và `git clean`.
+- **Máy thứ hai:** clone workspace rồi chạy `bash scripts/setup.sh`. Script tự clone lại `client/` về đúng commit gốc đã audit.
+
+| Pha | Skill | Ai làm | Bạn cần làm gì |
+|---|---|---|---|
+| T0 Tiếp nhận | `/takeover-0-engagement` | BA, DevOps (kiểm kê repo, thử build) | Kể các "triệu chứng", mục tiêu kinh doanh. **TG0: duyệt phạm vi chẩn đoán** |
+| T1 Chẩn đoán | `/takeover-1-discovery` | QA (chụp mọi màn hình), Product, UX, UI, Kiến trúc, Code, Performance, Security, Legal, Store, Ops, Data, AI | Chạy app trên máy thật nếu được nhờ |
+| T2 Thị trường | `/takeover-2-market` | Market, UI/UX R&D, ASO, Monetization | — |
+| T3 Đánh giá | `/takeover-3-assessment` | PM, Architect, hội đồng phản biện | Đọc báo cáo `docs/t3-assessment/assessment-vi.md`. **TG1: chọn phương án** |
+| T4 Chuyển giao | `/takeover-4-transition` | Architect, DevOps, Test Automation, Performance | — |
+| 2, 4–9 | như dự án mới, ở "Takeover mode" | | G2, G3 như cũ |
 
 ## Quy trình 10 pha và 4 cổng duyệt
 
@@ -49,7 +78,7 @@ Muốn thay đổi phạm vi sau G1 thì dùng `/change-request <mô tả>`.
 | Engineering – Mobile | `react-native-engineer`, `flutter-engineer`, `swift-ios-engineer`, `kotlin-android-engineer` |
 | Engineering – Backend | `nodejs-backend-engineer`, `python-backend-engineer`, `go-backend-engineer` |
 | Engineering – BaaS | `firebase-engineer`, `supabase-engineer` |
-| QA | `qa-engineer`, `test-automation-engineer` |
+| QA | `qa-engineer`, `test-automation-engineer`, `performance-engineer` |
 | Cyber Security | `security-lead`, `appsec-code-auditor`, `mobile-pentester`, `api-cloud-pentester` |
 | Legal & Compliance | `store-compliance-officer`, `privacy-legal-counsel` |
 | DevOps & Release | `devops-engineer`, `release-manager` |
@@ -113,7 +142,7 @@ Sau khi chạy `scripts/setup.sh` (trong repo template là `_CLAUDE.md` và `._c
 
 ```
 CLAUDE.md                 Sổ tay vận hành (mọi agent đều đọc)
-.claude/agents/           36 agent, chia theo phòng ban
+.claude/agents/           37 agent, chia theo phòng ban
 .claude/skills/           SOP từng pha (phase-*, review-board, change-request, company-status) + kiến thức (kb-*)
 .claude/hooks/            guard_files.py, guard_bash.py, session_start.py, activity_log.py (nhật ký cho bản đồ trụ sở)
 .claude/settings.json     agent mặc định, quyền, hooks
@@ -123,6 +152,8 @@ company/research/         tài liệu research khi xây dựng framework này
 state/                    trạng thái dự án (pha, gate, stack, feature list, tiến độ)
 docs/00-intake … 09-maintain   sản phẩm của từng pha
 apps/  services/  tests/e2e/   code (sinh ra từ pha 5)
+client/                   chỉ có khi tiếp nhận app: repo của app (git riêng, workspace bỏ qua)
+docs/t0-engagement … docs/t4-transition   sản phẩm của các pha tiếp nhận
 scripts/                  setup.sh, env-doctor.sh, check.sh, approve-release.sh, dashboard.py (+ smoke.sh do DevOps tạo)
 ```
 

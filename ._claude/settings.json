@@ -2,6 +2,14 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "agent": "delivery-director",
   "autoCompactWindow": 300000,
+  "claudeMdExcludes": [
+    "**/client/CLAUDE.md",
+    "**/client/**/CLAUDE.md",
+    "**/client/CLAUDE.local.md",
+    "**/client/**/CLAUDE.local.md",
+    "**/client/AGENTS.md",
+    "**/client/**/AGENTS.md"
+  ],
   "permissions": {
     "allow": [
       "Bash(git status *)",
@@ -9,6 +17,14 @@
       "Bash(git log *)",
       "Bash(git add *)",
       "Bash(git commit *)",
+      "Bash(git -C client status *)",
+      "Bash(git -C client log *)",
+      "Bash(git -C client diff *)",
+      "Bash(git -C client show *)",
+      "Bash(git -C client shortlog *)",
+      "Bash(git -C client ls-files *)",
+      "Bash(git -C client rev-parse *)",
+      "Bash(git -C client blame *)",
       "Bash(bash scripts/env-doctor.sh *)",
       "Bash(flutter analyze *)",
       "Bash(flutter test *)",
@@ -27,6 +43,9 @@
       "Read(./secrets/**)",
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(./client/**/.env)",
+      "Read(./client/**/.env.*)",
+      "Read(./client/**/secrets/**)",
       "Bash(git push --force *)",
       "Bash(git push -f *)"
     ]

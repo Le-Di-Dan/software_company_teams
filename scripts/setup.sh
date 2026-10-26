@@ -3,6 +3,12 @@
 # The template stores the framework as ._claude/ and _CLAUDE.md so that working on the framework itself
 # doesn't load the company's agents, hooks and instructions; this renames them to .claude/ and CLAUDE.md,
 # then records this machine's toolchain (env-doctor.sh). Safe to run again, e.g. on the second machine.
+#
+# Taking over an existing app instead of building a new one:
+#   bash scripts/setup.sh --takeover <customer repo git URL> [--ref <branch|tag|sha>]
+# clones the customer's repository into client/ (its own git; ignored by this workspace), pins the audited
+# baseline and starts the takeover track (scripts/takeover_setup.py). On the second machine plain
+# `bash scripts/setup.sh` clones client/ again.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -45,5 +51,21 @@ fi
 
 [ -d .claude ] && [ -f CLAUDE.md ] || { echo "setup: .claude/ or CLAUDE.md missing; is this the template?" >&2; exit 1; }
 
+PY=""
+for candidate in python3 python py; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    if [ "$candidate" = "py" ]; then PY="py -3"; break; fi
+    if "$candidate" -c 'import sys; sys.exit(0 if sys.version_info[0] == 3 else 1)' >/dev/null 2>&1; then
+      PY="$candidate"; break
+    fi
+  fi
+done
+if [ -n "$PY" ]; then
+  PYTHONIOENCODING=utf-8 $PY scripts/takeover_setup.py "$@"
+elif [ $# -gt 0 ]; then
+  echo "setup: Python 3 is required for --takeover." >&2
+  exit 1
+fi
+
 bash scripts/env-doctor.sh
-echo "setup: done. Commit the rename (git add -A && git commit -m 'Set up company project'), then start with: claude"
+echo "setup: done. Commit the setup (git add -A && git commit -m 'Set up company project'), then start with: claude"

@@ -23,3 +23,11 @@ Anything `needs: windows` or `needs: mac` gets a checklist in `docs/07-qa/pendin
 - Security: `state/security-findings.json` has no open Critical/High (fixed+verified or PO-accepted). UI bar: no FAIL on core screens.
 
 Then `phase: "8-release"`; log; commit.
+
+## Takeover mode
+- Add `performance-engineer` to the kickoff: `docs/07-qa/performance-<date>.md`, compared against `docs/t4-transition/baseline.md`.
+- QA re-runs the T1 walkthrough on the release candidate: every symptom and every accepted finding in `state/findings.json` is re-checked, then set to `verified` or sent back to `accepted` with evidence.
+- Extra exit criteria:
+  - no accepted critical or high finding is left unverified (unless the PO deferred it);
+  - the characterization suite is green, or each changed expectation is traced to an approved story;
+  - no performance regression above 10% against the baseline.

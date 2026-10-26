@@ -8,8 +8,9 @@ subagents whose prompt cache had expired, and agents re-read whole 50-120 KB doc
 - SendMessage: blocked when the target subagent returned more than `resume_idle_min` minutes ago. Subagent
   prompt caches live 5 minutes; after that a resume re-bills its whole context (100-360K tokens each in the
   trial) as cache writes. A fresh agent that reads the files is cheaper.
-- Read: a docs/, state/ or company/research/ text file over `read_max_kb` must be read in chunks of at
-  most `read_max_lines` lines; the block message carries the file's heading outline with line numbers.
+- Read: a docs/, state/ or company/research/ text file (in a takeover also the customer's docs, reports and
+  data files under client/) over `read_max_kb` must be read in chunks of at most `read_max_lines` lines; the
+  block message carries the file's heading outline with line numbers.
 - Bash: cat/less/more/awk/bat dumps of those files are blocked, head/tail/sed -n only for small ranges.
 - Bash: build/test/lint commands (flutter test, tsc, jest, pytest, gradlew, ...) are rewritten to run through
   scripts/check.sh, which keeps the full log in state/runs/ and returns a short summary with the failing line
@@ -49,6 +50,8 @@ UNROUTED = {"Explore", "statusline-setup", "claude-code-guide"}
 
 READ_SCOPES = ("docs/", "state/", "company/research/")
 READ_EXTS = {".md", ".jsonl", ".txt", ".csv", ".log"}
+# Takeover: the customer's repo (client/) often carries megabytes of docs, reports and evidence JSON.
+CLIENT_SCOPE, CLIENT_EXTS = "client/", READ_EXTS | {".json", ".html", ".xml", ".yaml", ".yml"}
 DUMP_CMDS = {"cat", "less", "more", "awk", "bat", "nl"}
 RANGE_CMDS = {"head", "tail", "sed"}
 
@@ -128,7 +131,10 @@ def scoped_big_file(path, pol):
         rel = p.relative_to(ROOT).as_posix()
     except (OSError, ValueError):
         return None
-    if not rel.startswith(READ_SCOPES) or p.suffix.lower() not in READ_EXTS or not p.is_file():
+    ext = p.suffix.lower()
+    in_scope = ((rel.startswith(READ_SCOPES) and ext in READ_EXTS)
+                or (rel.startswith(CLIENT_SCOPE) and ext in CLIENT_EXTS))
+    if not in_scope or not p.is_file():
         return None
     return rel if p.stat().st_size > float(pol["read_max_kb"]) * 1024 else None
 

@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "baseline_sha": "<state/project.json takeover.baseline_sha>",
+  "findings": [
+    {
+      "id": "TKO-UX-001",
+      "track": "ux",
+      "area": "onboarding",
+      "title": "First lesson is 4 screens and 2 choices away from install",
+      "severity": "high",
+      "business_impact": "Users who cannot start learning in the first minute churn before day 2; activation is the first funnel step the business depends on",
+      "evidence": [
+        "docs/t1-discovery/evidence/walkthrough/first-run-03.png",
+        "client/apps/mobile/lib/src/shell/home_screen.dart:88"
+      ],
+      "recommendation": "fix",
+      "proposal": "Start the first lesson right after the level pick; move settings out of the first run",
+      "effort": "M",
+      "status": "open",
+      "feature": null,
+      "po_note": "",
+      "notes": ""
+    }
+  ]
+}

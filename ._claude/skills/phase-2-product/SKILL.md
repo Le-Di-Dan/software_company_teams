@@ -20,3 +20,9 @@ Inputs: everything in `docs/00-intake/` and `docs/01-research/`.
 4. **Self-check before the board** (you verify): each MVP story has testable Given/When/Then incl. error/empty/offline; each has flows; compliance blockers addressed; AI features have cost per user; tracking covers the KPIs.
 
 Update state: `phase: "3-review-board"`; log; commit. Next: run `review-board` with gate G1.
+
+## Takeover mode (`engagement: "takeover"`, after T4)
+- Inputs replace the intake and research: `docs/t3-assessment/assessment.md` (the PO's TG1 decision), `docs/t2-market/positioning.md`, `docs/t1-discovery/*`, `state/findings.json` (accepted findings), `docs/t1-discovery/walkthrough.md` (how the app behaves today).
+- The PRD describes **v2 as a whole** and marks each story with the module verdict it comes from: `keep` (the current behavior is the spec, covered by T4's characterization tests), `fix` / `rebuild` (new acceptance criteria) or `add`. Cut features get a removal story: what happens to their screens, data and users. Every accepted finding maps to at least one story (`findings: [TKO-…]`).
+- Scope comes from the TG1 decision. If the PRD needs more or less than the chosen option, list the difference and ask the PO before moving on. There is no G1 board: TG1 already decided scope.
+- Then `phase: "4-design"`.

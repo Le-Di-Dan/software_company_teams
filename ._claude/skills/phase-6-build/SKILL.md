@@ -27,4 +27,11 @@ You may set a goal such as: `/goal every active feature in state/feature_list.js
 ## Scope changes
 Never add or change features directly — use the `change-request` skill.
 
+## Takeover mode (code lives in `client/`, the customer's repo)
+- Work on the `company/v2` branch of `client/`. **No `isolation: "worktree"`.** It isolates the workspace repo, which does not contain `client/`. Run parallel engineers only on features whose files don't overlap, and commit each feature yourself with its own paths: `git -C client add <paths> && git -C client commit -m "<type>(F-xxx): <title>"`, in the commit style kept in `.claude/rules/client.md`.
+- Brief engineers with the client paths from `takeover.owners`, the "today → v2" screen specs, the migration-plan step, and the characterization tests that must stay green. Refactor features follow the strangler order. Keep the app buildable and the characterization suite green after every feature.
+- Accept a feature only when its own verification passes **and** the characterization tests of the modules it touches pass (run through `check.sh -C client/...`). When a feature resolves findings, the engineer sets them to `fixed`; QA, performance or cyber re-test and set `verified`.
+- Push `company/v2` at milestones. Open or update the pull request (`gh pr create` / `gh pr edit`) with a Vietnamese summary of what changed for users, the findings resolved, and the evidence. Merging is the PO's.
+- The ~5-feature regression run also compares startup and app size against `docs/t4-transition/baseline.md`. A regression above 10% is a bug.
+
 Exit: all active features pass (except those `needs:` another machine, which the PO is told about). `phase: "7-qa"`; log; commit.
