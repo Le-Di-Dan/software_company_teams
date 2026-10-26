@@ -6,6 +6,7 @@ model: sonnet
 memory: user
 color: blue
 skills:
+  - kb-run-checks
   - kb-engineering-workflow
   - kb-swift-ios
   - kb-production-ui-bar

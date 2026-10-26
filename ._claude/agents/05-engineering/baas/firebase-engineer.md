@@ -6,6 +6,7 @@ model: sonnet
 memory: user
 color: yellow
 skills:
+  - kb-run-checks
   - kb-engineering-workflow
   - kb-backend-common
   - kb-firebase

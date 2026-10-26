@@ -1,11 +1,25 @@
 """SessionStart hook: inject the company's current state so every session resumes in the right phase."""
 import json
 import os
+import shutil
 import sys
 from pathlib import Path
 
 root = Path(os.environ.get("CLAUDE_PROJECT_DIR", "."))
 state = root / "state"
+
+# Housekeeping: check-runner logs (scripts/check.py prunes by age, count and size) and old pause archives.
+try:
+    sys.path.insert(0, str(root / "scripts"))
+    import check
+
+    check.prune()
+except Exception:  # noqa: BLE001 - housekeeping must never break session start
+    pass
+archive = state / "handoff" / "archive"
+if archive.is_dir():
+    for old in sorted(p for p in archive.iterdir() if p.is_dir())[:-5]:
+        shutil.rmtree(old, ignore_errors=True)
 
 
 def read_json(path):

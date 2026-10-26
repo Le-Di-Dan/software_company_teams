@@ -7,6 +7,7 @@ effort: high
 memory: user
 color: red
 skills:
+  - kb-run-checks
   - kb-engineering-workflow
 ---
 

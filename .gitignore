@@ -49,5 +49,8 @@ state/usage.json
 state/usage.json.tmp
 state/account.json
 state/account.json.tmp
+
+# Check runner logs (scripts/check.sh): self-pruning, machine-local
+state/runs/
 state/handoff/.*.paused
 state/handoff/PAUSE

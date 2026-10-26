@@ -13,7 +13,7 @@ Adapted from Anthropic's harness for long-running agents: state lives in files a
 2. Read the last entries of `state/progress.md` and `git log --oneline -15` (if git exists).
 3. Read your feature in `state/feature_list.json` (id from the brief): acceptance, verification, depends_on, platforms.
 4. Read the story (`docs/02-product/user-stories.md`), screen specs (`docs/04-design/screens/`), design tokens, architecture docs and ADRs relevant to it. Load the stack KB skill.
-5. Run the smoke check (`bash scripts/smoke.sh` if it exists, else the stack's build + test command). If it's already broken, fix or report that first — never build on a broken base.
+5. Run the smoke check (`bash scripts/smoke.sh` if it exists, else the stack's build + test command) through `bash scripts/check.sh` (kb-run-checks). If it's already broken, fix or report that first — never build on a broken base.
 
 ## 2. Implement one feature
 - Scope = exactly this feature's acceptance criteria. No drive-by refactors; note them as suggestions instead.
@@ -22,7 +22,7 @@ Adapted from Anthropic's harness for long-running agents: state lives in files a
 - Keep secrets out of code; read config from env/config files documented in `docs/05-architecture/secrets.md`.
 
 ## 3. Verify (evidence or it didn't happen)
-- Run every command in the feature's `verification` list plus lint/typecheck/unit tests for touched modules.
+- Run every command in the feature's `verification` list plus lint/typecheck/unit tests for touched modules, each through `bash scripts/check.sh` (kb-run-checks): on failure read the reported log lines, fix, re-run only the failures, then the full check once.
 - UI features: run on simulator/emulator available on this machine and save screenshots to `docs/07-qa/evidence/<feature-id>/`.
 - If a verification step needs the other machine, run everything you can and tag the rest `needs: mac` or `needs: windows` in the feature's `notes`.
 

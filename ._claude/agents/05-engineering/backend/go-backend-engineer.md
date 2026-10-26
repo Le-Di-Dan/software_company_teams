@@ -6,6 +6,7 @@ model: sonnet
 memory: user
 color: green
 skills:
+  - kb-run-checks
   - kb-engineering-workflow
   - kb-backend-common
   - kb-go

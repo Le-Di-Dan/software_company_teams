@@ -12,7 +12,7 @@ rsync -a --delete --exclude 'settings.local.json' --exclude 'agent-memory-local/
   "$REPO/._claude/" "$TRIAL/.claude/"
 cp "$REPO/_CLAUDE.md" "$TRIAL/CLAUDE.md"
 rsync -a --delete "$REPO/company/" "$TRIAL/company/"
-for f in dashboard.py env-doctor.sh approve-release.sh setup.sh; do cp "$REPO/scripts/$f" "$TRIAL/scripts/$f"; done
+for f in dashboard.py env-doctor.sh approve-release.sh setup.sh check.sh check.py; do cp "$REPO/scripts/$f" "$TRIAL/scripts/$f"; done
 cp "$REPO/README.md" "$REPO/.gitignore" "$TRIAL/"
 
 python3 - "$TRIAL/state/project.json" <<'PY'

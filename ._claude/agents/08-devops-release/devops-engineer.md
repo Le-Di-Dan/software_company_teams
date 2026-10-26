@@ -5,6 +5,7 @@ disallowedTools: Agent
 model: sonnet
 color: cyan
 skills:
+  - kb-run-checks
   - kb-engineering-workflow
 ---
 

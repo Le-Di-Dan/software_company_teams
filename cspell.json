@@ -2,5 +2,5 @@
   "version": "0.2",
   "language": "en",
   "ignorePaths": ["**/*.md", "state/**", "docs/**"],
-  "words": ["uiux", "supabase", "xcprivacy", "xcrun", "simctl", "Jetpack", "Cupertino", "IDFA", "WCAG", "jank", "Mobbin", "Baymard"]
+  "words": ["uiux", "supabase", "xcprivacy", "xcrun", "simctl", "Jetpack", "Cupertino", "IDFA", "WCAG", "jank", "Mobbin", "Baymard", "vitest", "xctest", "xctests", "gradlew", "taskkill", "killpg", "getpid", "bunx", "unmatch", "PYTHONIOENCODING", "cygpath", "fvm"]
 }

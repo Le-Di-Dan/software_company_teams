@@ -80,6 +80,7 @@ Mỗi app chỉ dùng một **squad**: Architect đề xuất một team mobile,
   - **Chọn model tự động theo `profile`.** `economy` (mặc định) dùng Opus cho devils-advocate, solution-architect, code-reviewer, product-manager và security-lead; `balanced` thêm Opus cho các nhóm R&D và monetization; `quality` thêm BA, compliance và legal. Muốn ghim riêng một agent thì dùng `model_overrides`, ví dụ `{"product-manager": "opus"}`.
   - **Không gọi lại agent đã nghỉ quá 4 phút** (`resume_idle_min`). Cache của sub-agent chỉ sống 5 phút, nên trường hợp đó công ty tạo agent mới đọc lại file thay vì gọi agent cũ.
   - **Đọc gọn.** Tài liệu trên 30KB phải đọc theo từng phần (tối đa 200 dòng mỗi lần); hook chặn `cat`/`sed` đổ cả file và gửi lại dàn ý của file cho agent.
+  - **Chạy build/test một lần, đọc đúng chỗ lỗi** (`scripts/check.sh`, skill `kb-run-checks`). Mọi lệnh build/test/lint/typecheck (`flutter test`, `npx tsc`, `jest`, `pytest`, `./gradlew`, `xcodebuild`…) được hook tự chạy qua `check.sh`: log đầy đủ lưu ở `state/runs/`, agent chỉ nhận một dòng khi pass, còn khi fail thì nhận danh sách test lỗi kèm số dòng trong log và lệnh chạy lại riêng phần lỗi. Nhờ vậy không còn cảnh chạy lại một lệnh 10–15 phút chỉ để xem output. Lệnh build/test bị pipe sang `tail`/`grep` hoặc redirect ra file sẽ bị chặn. Code không đổi (HEAD + thay đổi chưa commit + file mới) thì trả kết quả lần trước ngay lập tức (`--fresh` để ép chạy; e2e/integration và build không bao giờ dùng cache). Log tự dọn: pass thì xoá log fail cũ của check đó, ngoài ra giới hạn 3 ngày, 3 log fail mỗi check, tổng 200 MB, mỗi log 20 MB (`cost_policy`: `runs_max_age_days`, `runs_keep_failed`, `runs_max_mb`, `runs_max_log_mb`). Cần giữ log làm bằng chứng thì thêm `--keep <feature-id>` (copy sang `docs/07-qa/evidence/`), muốn xoá sạch thì chạy `bash scripts/check.sh --clean`.
   - **Song song tối đa 3 agent** (`max_parallel`). Context tự compact khi đạt 300K token (`autoCompactWindow` trong `.claude/settings.json`).
   - **Ngôn ngữ.** Tài liệu nội bộ viết bằng tiếng Anh (`doc_language: en`, ít token hơn tiếng Việt nhiều); mọi thứ PO đọc vẫn bằng tiếng Việt.
 - **Lệnh nguy hiểm** như `rm -rf` thư mục gốc hay force-push đều bị chặn.
@@ -122,7 +123,7 @@ company/research/         tài liệu research khi xây dựng framework này
 state/                    trạng thái dự án (pha, gate, stack, feature list, tiến độ)
 docs/00-intake … 09-maintain   sản phẩm của từng pha
 apps/  services/  tests/e2e/   code (sinh ra từ pha 5)
-scripts/                  setup.sh, env-doctor.sh, approve-release.sh, dashboard.py (+ smoke.sh do DevOps tạo)
+scripts/                  setup.sh, env-doctor.sh, check.sh, approve-release.sh, dashboard.py (+ smoke.sh do DevOps tạo)
 ```
 
 ## Tuỳ chỉnh
