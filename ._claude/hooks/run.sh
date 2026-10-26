@@ -26,7 +26,8 @@ if [ -z "$PY" ]; then
 fi
 
 INPUT="$(cat)"
-printf '%s' "$INPUT" | $PY "$SCRIPT"
+# Claude Code talks UTF-8; Windows Python would otherwise read and write the pipes as cp1252 and crash on █ ⚠ or Vietnamese.
+printf '%s' "$INPUT" | PYTHONIOENCODING=utf-8 $PY "$SCRIPT"
 STATUS=$?
 # Hooks block deliberately with exit 2. The script's existence is checked above, so Python's own exit 2
 # (cannot open file) can't happen here; uncaught exceptions exit 1 and are reported without blocking.

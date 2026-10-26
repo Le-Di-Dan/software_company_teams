@@ -30,6 +30,26 @@ else:
     lines.append(f"- Cost policy: profile={cost.get('profile', 'economy')}, max_parallel={cost.get('max_parallel', 3)}, "
                  f"doc_language={project.get('doc_language', 'en')} (see 'Cost discipline' in your instructions)")
 
+# Account plan (api | pro | max5x | max20x) decides the usage breaker's thresholds; re-detected every session
+# so a plan change is picked up, and cached in state/account.json for the status line and guards.
+if state.is_dir():
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import usage_state as us
+
+    acc = us.save_account(us.detect_plan())
+    pol = us.policy()
+    label = us.PLAN_LABEL[pol["plan"]]
+    origin = "set in usage_policy.plan" if pol["plan"] != acc["plan"] else f"detected via {acc['source']}"
+    if pol["plan"] == "api":
+        budget = pol.get("budget_usd")
+        lines.append(f"- Account: {label} ({origin}), pay as you go. " + (
+            f"Usage breaker at {pol['soft_pct']:.0f}% / {pol['hard_pct']:.0f}% of budget_usd={budget}." if budget else
+            "No budget_usd set, so the usage breaker is off: tell the PO once (Vietnamese) that every token is billed "
+            "and they can cap a session with state/project.json -> usage_policy.budget_usd."))
+    else:
+        lines.append(f"- Account: {label} ({origin}). Usage breaker: 5-hour {pol['soft_pct']:.0f}% / "
+                     f"{pol['hard_pct']:.0f}%, 7-day {pol['seven_day_soft_pct']:.0f}% / {pol['seven_day_hard_pct']:.0f}%.")
+
 features = read_json(state / "feature_list.json")
 if features and features.get("features"):
     items = features["features"]

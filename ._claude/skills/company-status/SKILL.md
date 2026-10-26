@@ -12,6 +12,7 @@ description: Show the company's current state to the PO in Vietnamese (phase, ga
    - Tên app / ý tưởng · Pha hiện tại và trạng thái · Các gate (G0–G3) · Stack & squad (nếu đã chọn)
    - Tiến độ feature: x/y passes (nếu ở pha build), số bug mở (`docs/07-qa/bugs.md`)
    - Bảo mật: số lỗ hổng Critical/High còn mở trong `state/security-findings.json` (nếu có) — cảnh báo đây là thứ chặn G3
+   - Gói tài khoản Claude và ngưỡng cầu dao usage (dòng `Account:` của SessionStart; API mà chưa đặt `budget_usd` thì nhắc PO là không có giới hạn)
    - Máy hiện tại làm được gì (iOS? Android?) và việc nào đang chờ máy kia (`needs:`)
    - Câu hỏi đang chờ PO trả lời
    - Việc PO cần tự làm (tài khoản developer, tuyển 12 tester Google Play, API keys, phê duyệt chi phí)
@@ -21,7 +22,7 @@ description: Show the company's current state to the PO in Vietnamese (phase, ga
 {"app_name": null, "idea": null, "doc_language": "en", "phase": "0-intake", "phase_status": "not-started",
  "gates": {"G0_brief": "pending", "G1_mvp_scope": "pending", "G2_stack": "pending", "G3_release": "pending"},
  "stack": {"mobile": null, "backend": null, "baas": null}, "squad": [], "po_release_approval": false,
- "usage_policy": {"soft_pct": 75, "hard_pct": 80, "seven_day_soft_pct": 95, "seven_day_hard_pct": 98, "budget_usd": null},
+ "usage_policy": {"plan": "auto", "budget_usd": null, "plans": {}},
  "cost_policy": {"profile": "economy", "model_overrides": {}, "max_parallel": 3, "resume_idle_min": 4, "read_max_kb": 30, "read_max_lines": 200},
  "updated_at": null}
 ```

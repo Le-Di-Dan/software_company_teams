@@ -1,7 +1,8 @@
 """Usage circuit breaker (PreToolUse on every tool + StopFailure).
 
 Levels come from usage_state.current() (state/usage.json written by the status line):
-  Thresholds per window: 5-hour soft/hard 75/80, 7-day 95/98 (usage_state.py, state/project.json -> usage_policy).
+  Thresholds per window and account plan (api/pro/max5x/max20x), e.g. Pro 5-hour 75/80, 7-day 95/98
+  (table in usage_state.py, overrides in state/project.json -> usage_policy).
   soft                            main session may not start or resume subagent work (Agent, SendMessage);
                                   running subagents finish their current task normally.
   hard                            every subagent is blocked except one Write of its handoff file, then must

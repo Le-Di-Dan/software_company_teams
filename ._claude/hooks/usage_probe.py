@@ -37,6 +37,7 @@ if us.STATE.is_dir():
         pass
 
 u = us.current(now)
+wpol = us.window_policy()
 GREEN, YELLOW, RED, DIM, RESET = "\033[32m", "\033[33m", "\033[31m", "\033[2m", "\033[0m"
 color = {"ok": GREEN, "soft": YELLOW, "hard": RED}[u["level"]]
 segs = []
@@ -44,7 +45,7 @@ for key, label in (("five_hour", "5h"), ("seven_day", "7d")):
     w = record.get(key) or {}
     if w.get("used_percentage") is not None and not (w.get("resets_at") and w["resets_at"] <= now):
         pct = float(w["used_percentage"])
-        soft, hard = us.thresholds(key)
+        soft, hard = us.thresholds(key, wpol)
         c = RED if pct >= hard else YELLOW if pct >= soft else GREEN
         bar = "█" * int(pct // 10) + "░" * (10 - int(pct // 10)) if key == "five_hour" else ""
         segs.append(f"{label} {c}{bar}{' ' if bar else ''}{pct:.0f}%{RESET}")
@@ -55,4 +56,5 @@ if record["context_pct"] is not None:
 status = {"ok": "", "soft": f"{color}⚠ ngừng giao việc mới{RESET}", "hard": f"{color}⏸ TẠM DỪNG · viết bàn giao{RESET}"}[u["level"]]
 if status:
     segs.append(status)
-print(" · ".join(segs) or "usage: chờ phản hồi đầu tiên")
+plan = f"{DIM}{us.PLAN_LABEL.get(u['plan'], u['plan'])}{RESET}"
+print(" · ".join([plan] + (segs or ["usage: chờ phản hồi đầu tiên"])))
