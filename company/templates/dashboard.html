@@ -26,7 +26,7 @@
       linear-gradient(180deg,var(--space-1),var(--space-0));
     background-color:var(--space-0);}
   .stars{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;
+  .wrap{position:relative;z-index:1;max-width:1840px;margin:0 auto;
     padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
     padding-block:18px 32px;display:flex;flex-direction:column;gap:14px}
   h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
@@ -71,11 +71,29 @@
   .phase .gate.ok{background:var(--online);color:#06261a}
 
   /* ---- map + panel ---- */
-  .main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+  .main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
   .mapcard{background:linear-gradient(180deg,rgba(18,28,56,.55),rgba(8,12,24,.55));border:1px solid var(--line);
     border-radius:18px;overflow:hidden;position:relative;min-width:0}
   .mapscroll{overflow-x:auto;scrollbar-width:thin}
-  svg.map{display:block;width:100%;min-width:660px;height:auto;user-select:none}
+  /* fill the column, but never taller than the window so the whole island stays in view */
+  svg.map{display:block;width:100%;min-width:660px;height:auto;max-height:calc(100vh - 96px);user-select:none}
+  svg.map.zoomed{cursor:grab;touch-action:none}
+  svg.map.panning{cursor:grabbing}
+  svg.map .ntag{display:none}
+  svg.map.close .ntag{display:inline}
+  .zoom{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+  .zoom button{border:0;background:none;padding:5px 12px;cursor:pointer;font-weight:700;font-size:.95rem;line-height:1}
+  .zoom button:hover{color:var(--accent)}
+  .zoom button[disabled]{opacity:.35;cursor:default;color:inherit}
+  .zoom output{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
+  /* full-window map: map + panel take the whole viewport */
+  body.maxmap{overflow:hidden}
+  .main.max{position:fixed;inset:0;z-index:30;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));
+    align-items:stretch;background:linear-gradient(180deg,var(--space-1),var(--space-0))}
+  .main.max .mapcard{display:flex;flex-direction:column;min-height:0}
+  .main.max .mapscroll{flex:1 1 auto;min-height:0;overflow:hidden}
+  .main.max svg.map{height:100%;max-height:none;min-width:0;touch-action:none}
+  .main.max .panel{max-height:100%}
   .maptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px 12px;border-top:1px solid var(--line)}
   .maptools .hint{font-size:.74rem;color:var(--dim);margin-right:auto}
   .btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);
@@ -107,7 +125,8 @@
   @keyframes blink{0%,100%{opacity:.25}40%{opacity:1}}
 
   /* ---- panel ---- */
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;position:sticky;top:12px;min-width:0}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;position:sticky;top:12px;min-width:0;
+    max-height:calc(100vh - 24px);overflow:auto;scrollbar-width:thin}
   .eyebrow{font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;color:var(--dim)}
   .panel h2{font-size:1.25rem;margin:2px 0}
   .panel .sub{color:var(--muted);font-size:.83rem;margin:0 0 12px;line-height:1.45}
@@ -158,8 +177,10 @@
 
   @media (max-width:900px){
     .main,.boards{grid-template-columns:minmax(0,1fr)}
-    .panel{position:static}
+    .panel{position:static;max-height:none}
     .stats{margin-left:0;width:100%}.stat{flex:1 1 auto}
+    .main.max{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+    .main.max .panel{max-height:36vh}
   }
   @media (prefers-reduced-motion:reduce){
     svg.map *{animation:none!important}
@@ -188,10 +209,15 @@
   <div class="main">
     <section class="mapcard">
       <div class="mapscroll" id="mapscroll">
-        <svg class="map" id="map" viewBox="-470 -235 940 765" role="img" aria-label="Bản đồ trụ sở: các tòa nhà phòng ban và trưởng phòng"></svg>
+        <svg class="map" id="map" viewBox="-582.5 -130 1165 772.5" role="img" aria-label="Bản đồ trụ sở: các tòa nhà phòng ban và trưởng phòng"></svg>
       </div>
       <div class="maptools">
-        <span class="hint">Chạm vào tòa nhà hoặc nhân vật để xem phòng ban</span>
+        <span class="hint">Chạm vào tòa nhà hoặc nhân vật để xem phòng ban · Ctrl + cuộn để phóng to, kéo để di chuyển</span>
+        <div class="zoom" role="group" aria-label="Thu phóng bản đồ">
+          <button type="button" id="z-out" aria-label="Thu nhỏ">−</button><output id="z-lvl">100%</output><button type="button" id="z-in" aria-label="Phóng to">+</button>
+        </div>
+        <button class="btn" id="btn-fit" type="button">Vừa khung</button>
+        <button class="btn" id="btn-max" type="button" aria-pressed="false"><svg viewBox="0 0 12 12"><path d="M1 4.5V1h3.5M7.5 1H11v3.5M11 7.5V11H7.5M4.5 11H1V7.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span>Toàn màn hình</span></button>
         <button class="btn" id="btn-replay" type="button"><svg viewBox="0 0 12 12"><path d="M2 1.5v9l8-4.5z" fill="currentColor"/></svg>Phát lại hoạt động</button>
         <button class="btn" id="btn-demo" type="button"><svg viewBox="0 0 12 12"><path d="M2 1.5v9l8-4.5z" fill="currentColor"/></svg>Mô phỏng pha Research</button>
       </div>
@@ -242,6 +268,12 @@ const DEPTS = [
   {id:"review",place:"Vòng Phản Biện",name:"Review Board",kind:"arena",color:"#b07bf0",gx:2.2,gy:4.5,w:1.1,d:1.1,phases:[3,5],
    leader:{name:"Mèo Mun",sp:"blackcat"},agents:[["devils-advocate","Phản biện mọi quyết định ở các gate"]]}
 ];
+/* The footprints above are laid out on a 10x10 plan. The ground is GS wide, so building centres spread out by GS/10
+   and each building is drawn at BS of its size, leaving open ground for the leaders to walk and meet on.
+   d.art keeps the plan footprint the KINDS drawings use; d.gx/gy/w/d become the real footprint on the ground. */
+const GS=12.5, BS=.8;
+DEPTS.forEach(d=>{const cx=(d.gx+d.w/2)*GS/10,cy=(d.gy+d.d/2)*GS/10;d.art={gx:d.gx,gy:d.gy,w:d.w,d:d.d};
+  d.w*=BS;d.d*=BS;d.gx=cx-d.w/2;d.gy=cy-d.d/2;});
 const DEPT = Object.fromEntries(DEPTS.map(d=>[d.id,d]));
 const AGENT_DEPT = {}; DEPTS.forEach(d=>d.agents.forEach(a=>AGENT_DEPT[a[0]]=d.id));
 const deptOf = agent => AGENT_DEPT[agent] || "lead";      // Explore, general-purpose… are the director's helpers
@@ -406,9 +438,9 @@ const KINDS = {
 };
 
 /* ================= island, roads, pathfinding ================= */
-const RES=.2, N=50, blocked=new Uint8Array(N*N);
+const RES=.2, N=Math.ceil(GS/RES), blocked=new Uint8Array(N*N);
 function buildGrid(){
-  for(let i=0;i<N;i++)for(let j=0;j<N;j++){const x=(i+.5)*RES,y=(j+.5)*RES;let b=x<.35||y<.35||x>9.65||y>9.65;
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){const x=(i+.5)*RES,y=(j+.5)*RES;let b=x<.35||y<.35||x>GS-.35||y>GS-.35;
     if(!b)for(const d of DEPTS){if(x>d.gx-.14&&x<d.gx+d.w+.14&&y>d.gy-.14&&y<d.gy+d.d+.14){b=true;break}}
     blocked[i*N+j]=b?1:0;}
 }
@@ -438,20 +470,20 @@ function findPath(a,b){
   pathCache.set(key,out);return out;
 }
 /* Where a leader stands: on the visible wall (south or east) that faces the plaza. */
-DEPTS.forEach(d=>{const cx=d.gx+d.w/2,cy=d.gy+d.d/2,dx=5-cx,dy=5-cy;
+DEPTS.forEach(d=>{const cx=d.gx+d.w/2,cy=d.gy+d.d/2,dx=GS/2-cx,dy=GS/2-cy;
   if(dx>=dy){d.home={x:d.gx+d.w+.38,y:cy};d.tan={x:0,y:1};}else{d.home={x:cx,y:d.gy+d.d+.38};d.tan={x:1,y:0};}});
 const visitSpot=(d,k=1)=>({x:d.home.x+d.tan.x*.5*k,y:d.home.y+d.tan.y*.5*k});
 
 function islandSVG(){
-  const c=[P(0,0),P(10,0),P(10,10),P(0,10)],T=50;
-  let s=`<ellipse cx="0" cy="${P(10,10).y+T+40}" rx="480" ry="66" fill="#000" opacity=".35"/>`;
+  const c=[P(0,0),P(GS,0),P(GS,GS),P(0,GS)],T=50,k=GS/10;
+  let s=`<ellipse cx="0" cy="${P(GS,GS).y+T+40}" rx="${GS*HW+30}" ry="66" fill="#000" opacity=".35"/>`;
   s+=poly([c[1],c[2],{x:c[2].x,y:c[2].y+T},{x:c[1].x,y:c[1].y+T}],"#a4703a")+poly([c[3],c[2],{x:c[2].x,y:c[2].y+T},{x:c[3].x,y:c[3].y+T}],"#7f5428");
-  for(let i=0;i<9;i++){const a=P(10,i+.6),b=P(i+.6,10);s+=`<circle cx="${a.x}" cy="${a.y+T*.55}" r="${2+(i%3)}" fill="#6e4520" opacity=".6"/><circle cx="${b.x}" cy="${b.y+T*.45}" r="${2+((i+1)%3)}" fill="#5c3a1a" opacity=".6"/>`;}
+  for(let i=0;i<GS-1;i++){const a=P(GS,i+.6),b=P(i+.6,GS);s+=`<circle cx="${a.x}" cy="${a.y+T*.55}" r="${2+(i%3)}" fill="#6e4520" opacity=".6"/><circle cx="${b.x}" cy="${b.y+T*.45}" r="${2+((i+1)%3)}" fill="#5c3a1a" opacity=".6"/>`;}
   s+=poly(c,"url(#sand)",`stroke="#f6c47a" stroke-width="1.5"`);
-  [[2.6,2.8,14],[6.3,2.4,10],[9.3,4.9,9],[5.6,9.5,12],[3.3,3.3,7],[2.4,9.6,8],[9.5,6.7,7],[1.6,6.9,6],[6.1,6.4,8],[8.9,1.2,9],[0.6,0.6,8],[3.2,6.6,6]].forEach(([a,b,r])=>{const q=P(a,b);
+  [[2.6,2.8,14],[6.3,2.4,10],[9.3,4.9,9],[5.6,9.5,12],[3.3,3.3,7],[2.4,9.6,8],[9.5,6.7,7],[1.6,6.9,6],[6.1,6.4,8],[8.9,1.2,9],[0.6,0.6,8],[3.2,6.6,6]].forEach(([a,b,r])=>{const q=P(a*k,b*k);
     s+=`<ellipse cx="${q.x}" cy="${q.y}" rx="${r}" ry="${r/2}" fill="#c98c45" opacity=".55"/><ellipse cx="${q.x+r*.18}" cy="${q.y+r*.1}" rx="${r*.68}" ry="${r*.32}" fill="#e7a95a" opacity=".55"/>`;});
-  [[3.6,1.8],[8.8,2.4],[6.6,4.6],[9.1,9.6],[2.7,7.2],[0.5,9.5],[4.4,6.9]].forEach(([a,b])=>{const q=P(a,b);s+=`<path d="M${q.x-6},${q.y} q2,-7 7,-6 q5,1 5,6z" fill="#9c6a35"/>`;});
-  const pz=P(5,5);s+=`<ellipse cx="${pz.x}" cy="${pz.y}" rx="${RX(1.9)}" ry="${RY(1.9)}" fill="#f7cf8e" opacity=".45"/>`;
+  [[3.6,1.8],[8.8,2.4],[6.6,4.6],[9.1,9.6],[2.7,7.2],[0.5,9.5],[4.4,6.9]].forEach(([a,b])=>{const q=P(a*k,b*k);s+=`<path d="M${q.x-6},${q.y} q2,-7 7,-6 q5,1 5,6z" fill="#9c6a35"/>`;});
+  const pz=P(GS/2,GS/2);s+=`<ellipse cx="${pz.x}" cy="${pz.y}" rx="${RX(1.9*k)}" ry="${RY(1.9*k)}" fill="#f7cf8e" opacity=".45"/>`;
   return s;
 }
 function roadsSVG(){
@@ -513,10 +545,13 @@ function buildScene(){
   map.innerHTML=`<defs><radialGradient id="sand" cx="42%" cy="34%" r="80%"><stop offset="0%" stop-color="#f6c072"/><stop offset="60%" stop-color="#e59f4c"/><stop offset="100%" stop-color="#c47d2f"/></radialGradient></defs>`;
   L.ground=layer("ground");L.scene=layer("scene");L.labels=layer("labels");L.bubbles=layer("bubbles");
   L.ground.innerHTML=islandSVG()+roadsSVG();
-  DEPTS.forEach(d=>{const k=KINDS[d.kind](d),g=document.createElementNS(SVGNS,"g");
+  DEPTS.forEach(d=>{const a=d.art,k=KINDS[d.kind]({...d,...a}),g=document.createElementNS(SVGNS,"g");
     g.setAttribute("class","bld");g.dataset.id=d.id;
-    let svg=k.svg;if(!k.noBeacon)svg+=beacon(d.gx+d.w/2,d.gy+d.d/2,k.top+2);
-    g.innerHTML=`<title>${esc(d.place)} · ${esc(d.name)}</title>`+svg;d.top=k.top;d.el=g;d.depth=d.gx+d.gy+(d.w+d.d)/2;
+    let svg=k.svg;if(!k.noBeacon)svg+=beacon(a.gx+a.w/2,a.gy+a.d/2,k.top+2);
+    /* drawn on the plan footprint, then moved to the real centre and shrunk to BS (isometric is linear, so this is a true 3D scale) */
+    const from=P(a.gx+a.w/2,a.gy+a.d/2),to=P(d.gx+d.w/2,d.gy+d.d/2);
+    g.innerHTML=`<title>${esc(d.place)} · ${esc(d.name)}</title><g transform="translate(${to.x.toFixed(1)} ${to.y.toFixed(1)}) scale(${BS}) translate(${(-from.x).toFixed(1)} ${(-from.y).toFixed(1)})">${svg}</g>`;
+    d.top=k.top*BS;d.el=g;d.depth=d.gx+d.gy+(d.w+d.d)/2;
     g.addEventListener("click",()=>select(d.id));L.scene.appendChild(g);});
   DEPTS.forEach(d=>{d.critter=new Critter(d);});
   renderLabels();
@@ -557,10 +592,14 @@ function applyBuildingState(){
 }
 
 /* ================= leaders that walk ================= */
-const SPEED=REDUCED?99:1.55;           // grid units per second
+const SPEED=REDUCED?99:1.8;            // grid units per second
+const MS=1.5;                          // mascot scale
 class Critter{
   constructor(d){this.d=d;this.pos={...d.home};this.face=d.tan.x?1:-1;this.path=[];this.queue=[];this.step=null;this.t=Math.random()*9;this.wait=0;this.walking=false;
-    const g=document.createElementNS(SVGNS,"g");g.setAttribute("class","critter");g.innerHTML=`<title>${esc(d.leader.name)} – trưởng phòng ${esc(d.name)}</title><g class="body">${mascot(d.leader.sp,d.color)}</g>`;
+    const g=document.createElementNS(SVGNS,"g"),tw=d.leader.name.length*4.6+12;g.setAttribute("class","critter");
+    g.innerHTML=`<title>${esc(d.leader.name)} – trưởng phòng ${esc(d.name)}</title><g class="body">${mascot(d.leader.sp,d.color)}</g>`+
+      `<g class="ntag"><rect x="${-tw/2}" y="5" width="${tw}" height="12" rx="6" fill="#0d1530" stroke="${d.color}" stroke-width=".8"/>`+
+      `<text x="0" y="13.6" text-anchor="middle" font-family="Be Vietnam Pro" font-size="7.6" font-weight="600" fill="#f5efe1">${esc(d.leader.name)}</text></g>`;
     g.addEventListener("click",()=>select(d.id));this.el=g;this.body=g.querySelector(".body");this.legs=[g.querySelector(".legL"),g.querySelector(".legR")];
     L.scene.appendChild(g);
     const b=document.createElementNS(SVGNS,"g");b.setAttribute("class","bub");b.style.display="none";L.bubbles.appendChild(b);this.bub=b;
@@ -570,9 +609,9 @@ class Critter{
   get depth(){return this.pos.x+this.pos.y+.05;}
   visit(target,say,reply,hold=2600){this.queue.push({target,say,reply,hold});}
   say(text,ms=2400){this.sayText=text;this.sayUntil=performance.now()+ms;this.drawBubble();}
-  drawBubble(){const lines=wrap(this.sayText,30),w=Math.max(...lines.map(l=>l.length))*5.25+18,h=lines.length*12+9;
+  drawBubble(){const lines=wrap(this.sayText,30),w=Math.max(...lines.map(l=>l.length))*5.8+20,h=lines.length*13+10;
     this.bub.innerHTML=`<rect x="${-w/2}" y="${-h}" width="${w}" height="${h}" rx="8" fill="#fffaf0" stroke="#1c2236" stroke-opacity=".25"/><path d="M-5,-1 l5,7 l5,-7z" fill="#fffaf0"/>`+
-      lines.map((l,i)=>`<text x="0" y="${-h+15+i*12}" text-anchor="middle" font-family="Be Vietnam Pro" font-size="9.2" font-weight="600" fill="#1c2236">${esc(l)}</text>`).join("");
+      lines.map((l,i)=>`<text x="0" y="${-h+16.5+i*13}" text-anchor="middle" font-family="Be Vietnam Pro" font-size="10.2" font-weight="600" fill="#1c2236">${esc(l)}</text>`).join("");
     this.bub.style.display="";}
   reset(){this.queue=[];this.step=null;this.path=[];this.pos={...this.d.home};this.sayUntil=0;this.bub.style.display="none";}
   update(dt,now){
@@ -592,14 +631,14 @@ class Critter{
       const sx=(dx-dy);if(Math.abs(sx)>.001)this.face=sx>0?1:-1;this.walking=true;}
     const p=P(this.pos.x,this.pos.y),bob=this.walking?-Math.abs(Math.sin(this.t*11))*2.2:Math.sin(this.t*2.2)*.6;
     this.el.setAttribute("transform",`translate(${p.x.toFixed(1)},${(p.y+bob).toFixed(1)})`);
-    this.body.setAttribute("transform",`scale(${this.face*1.3},1.3)`);
+    this.body.setAttribute("transform",`scale(${this.face*MS},${MS})`);
     if(this.legs[0]){const sw=this.walking?Math.sin(this.t*11)*1.8:0;this.legs[0].setAttribute("transform",`translate(0,${-Math.max(0,sw)})`);this.legs[1].setAttribute("transform",`translate(0,${-Math.max(0,-sw)})`);}
-    const top=p.y-(this.d.leader.sp==="bunny"?66:56);
+    const top=p.y-(this.d.leader.sp==="bunny"?47:38)*MS-6;
     if(this.sayUntil>now){this.bub.setAttribute("transform",`translate(${p.x.toFixed(1)},${top.toFixed(1)})`);}
     else if(this.bub.style.display!=="none")this.bub.style.display="none";
     const atHome=!this.path.length&&!this.step&&Math.hypot(this.pos.x-this.d.home.x,this.pos.y-this.d.home.y)<.05;
     const busy=atHome&&this.sayUntil<=now&&view().running().some(a=>a.dept===this.d.id);
-    this.typing.style.display=busy?"":"none";if(busy)this.typing.setAttribute("transform",`translate(${p.x.toFixed(1)},${(p.y-48).toFixed(1)})`);
+    this.typing.style.display=busy?"":"none";if(busy)this.typing.setAttribute("transform",`translate(${p.x.toFixed(1)},${(p.y-32*MS-6).toFixed(1)})`);
   }
 }
 function wrap(text,n){const words=String(text).split(/\s+/),out=[];let cur="";
@@ -690,7 +729,7 @@ function renderPipe(){
 function gateChips(){const lbl={pending:"Chờ duyệt",approved:"Đã duyệt","changes-requested":"Cần sửa"};
   return Object.entries(SNAP.gates||{}).map(([g,v])=>`<span class="chip"><span class="d" style="background:${v==="approved"?"var(--online)":v==="changes-requested"?"var(--crit)":"var(--gate)"}"></span>${g} · ${lbl[v]||esc(v)}</span>`).join("");}
 function select(id){selected=selected===id?null:id;renderLabels();renderPanel();
-  if(selected&&innerWidth<=900)document.getElementById("panel").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"});}
+  if(selected&&innerWidth<=900&&!maxed)document.getElementById("panel").scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"});}
 function renderPanel(){
   const el=document.getElementById("panel"),eng=view(),run=eng.running();
   if(selected){const d=DEPT[selected],mine=run.filter(a=>a.dept===d.id);
@@ -789,7 +828,47 @@ function stars(){const c=document.getElementById("stars"),x=c.getContext("2d");
     for(let i=0;i<150;i++){x.globalAlpha=Math.random()*.6+.2;x.fillStyle=Math.random()>.85?"#ffd9a0":"#dfe6ff";x.beginPath();x.arc(Math.random()*w,Math.random()*h,Math.random()*1.3+.2,0,7);x.fill();}x.globalAlpha=1;}
   draw();addEventListener("resize",draw);}
 
-buildGrid();buildScene();real.ingest(SNAP.events,false);renderAll();stars();requestAnimationFrame(frame);
+/* ================= zoom, pan, full window ================= */
+const VB0={x:-(GS*HW+20),y:-130,w:2*(GS*HW+20),h:GS*2*HH+210},ZMAX=4;   // matches the <svg> viewBox
+let vb={...VB0},drag=null,swallowClick=false,maxed=false;
+function setView(){
+  vb.w=Math.min(VB0.w,Math.max(VB0.w/ZMAX,vb.w));vb.h=vb.w*VB0.h/VB0.w;
+  vb.x=Math.min(VB0.x+VB0.w-vb.w,Math.max(VB0.x,vb.x));vb.y=Math.min(VB0.y+VB0.h-vb.h,Math.max(VB0.y,vb.y));
+  map.setAttribute("viewBox",[vb.x,vb.y,vb.w,vb.h].map(v=>v.toFixed(1)).join(" "));
+  const z=VB0.w/vb.w;map.classList.toggle("zoomed",z>1.01);map.classList.toggle("close",z>=1.6);
+  document.getElementById("z-lvl").textContent=Math.round(z*100)+"%";
+  document.getElementById("z-out").disabled=z<=1.01;document.getElementById("z-in").disabled=z>=ZMAX-.01;
+}
+const svgPoint=(cx,cy)=>new DOMPoint(cx,cy).matrixTransform(map.getScreenCTM().inverse());
+const viewCenter=()=>({x:vb.x+vb.w/2,y:vb.y+vb.h/2});
+function zoomAt(f,pt=viewCenter()){const nw=Math.min(VB0.w,Math.max(VB0.w/ZMAX,vb.w/f)),k=nw/vb.w;
+  vb.x=pt.x-(pt.x-vb.x)*k;vb.y=pt.y-(pt.y-vb.y)*k;vb.w=nw;setView();}
+function setMax(on){maxed=on;document.querySelector(".main").classList.toggle("max",on);document.body.classList.toggle("maxmap",on);
+  const b=document.getElementById("btn-max");b.setAttribute("aria-pressed",on);b.querySelector("span").textContent=on?"Thu nhỏ khung":"Toàn màn hình";
+  if(on&&document.fullscreenEnabled&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
+  if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{});}
+document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&maxed)setMax(false);});
+document.getElementById("z-in").onclick=()=>zoomAt(1.4);
+document.getElementById("z-out").onclick=()=>zoomAt(1/1.4);
+document.getElementById("btn-fit").onclick=()=>{vb={...VB0};setView();};
+document.getElementById("btn-max").onclick=()=>setMax(!maxed);
+/* wheel zooms only with Ctrl/⌘ (or trackpad pinch) so normal scrolling still moves the page; in full window it always zooms */
+document.getElementById("mapscroll").addEventListener("wheel",e=>{if(!(e.ctrlKey||e.metaKey||maxed))return;e.preventDefault();
+  zoomAt(Math.exp(-e.deltaY*(e.deltaMode?.05:.0018)),svgPoint(e.clientX,e.clientY));},{passive:false});
+/* drag to pan once zoomed; a drag never counts as a click on a building */
+map.addEventListener("pointerdown",e=>{if(e.button!==0||VB0.w/vb.w<=1.01)return;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y,s:map.getScreenCTM().a,moved:false};});
+map.addEventListener("pointermove",e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!drag.moved){if(Math.hypot(dx,dy)<5)return;drag.moved=true;map.setPointerCapture(e.pointerId);map.classList.add("panning");}
+  vb.x=drag.vx-dx/drag.s;vb.y=drag.vy-dy/drag.s;setView();});
+const endDrag=e=>{if(!drag||e.pointerId!==drag.id)return;if(drag.moved){swallowClick=true;setTimeout(()=>swallowClick=false,0);}map.classList.remove("panning");drag=null;};
+map.addEventListener("pointerup",endDrag);map.addEventListener("pointercancel",endDrag);
+map.addEventListener("click",e=>{if(swallowClick){e.stopPropagation();swallowClick=false;}},true);
+addEventListener("keydown",e=>{if(e.ctrlKey||e.metaKey||e.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;
+  if(e.key==="Escape"&&maxed)setMax(false);else if(e.key==="+"||e.key==="=")zoomAt(1.4);else if(e.key==="-")zoomAt(1/1.4);
+  else if(e.key==="0"){vb={...VB0};setView();}else if(e.key==="f"||e.key==="F")setMax(!maxed);});
+
+buildGrid();buildScene();real.ingest(SNAP.events,false);renderAll();stars();setView();requestAnimationFrame(frame);
 const sc=document.getElementById("mapscroll");sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)/2;
 if(CAN_POLL){conn="live";poll();setInterval(poll,2000);}
 </script>
