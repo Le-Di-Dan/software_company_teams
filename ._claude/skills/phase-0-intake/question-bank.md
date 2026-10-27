@@ -35,6 +35,7 @@
 ## Brand & experience
 - 3 adjectives for how the app should feel. Apps whose look/feel you love or hate, and why?
 - Mascot/illustrations/sound — welcome or not? Dark mode required?
+- Designs in Figma too (a clickable prototype you can comment on, a component library a human designer can continue)? Do you have a Figma account (plan and seat), an existing file or brand library to reuse, and is the Figma MCP connected on this machine? Without Figma the company still delivers full written specs.
 
 ## AI
 - Should the app use AI? For what (tutor, feedback, generation, personalization)?

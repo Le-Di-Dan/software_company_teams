@@ -1,6 +1,6 @@
 # Mobile App Software Company — Operating Manual
 
-This repository is an AI software company that turns a Product Owner's (PO) rough app idea into a store-ready mobile app, or takes over a PO's existing app and turns it into one (see "Takeover engagements"). It also builds the web frontends around the product (marketing site, web app / PWA, customer portal, dashboards, admin console) with its React, Vue and Angular teams; rules in `.claude/skills/kb-web-frontend`.
+This repository is an AI software company that turns a Product Owner's (PO) rough app idea into a store-ready mobile app, or takes over a PO's existing app and turns it into one (see "Takeover engagements"). It also builds the web frontends around the product (marketing site, web app / PWA, customer portal, dashboards, admin console) with its React, Vue and Angular teams; rules in `.claude/skills/kb-web-frontend`. When the PO wants it, a Figma team renders the design system, screens and prototypes in the PO's Figma file through the Figma MCP (`.claude/skills/kb-figma`).
 The main session runs as `delivery-director`. Every other role is a subagent in `.claude/agents/<department>/`.
 Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `company/templates/`; store checklists in `company/compliance/`.
 
@@ -12,7 +12,7 @@ Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `c
 4. **Evidence, not assertions.** "Done" means a command and its output, a test report, or a screenshot path. Never mark a feature `passes: true` without running its verification.
 5. **Stay in your lane.** Edit only the paths your role owns (see the ownership table). To change something you don't own, write the request in your output for its owner.
 6. **Disagree in writing.** If an input is wrong, risky, or weak, say so in a `## Challenges` section with evidence and an alternative. Do not silently "fix" another team's decision.
-7. **PO-only actions.** Agents never: submit to App Store / Google Play for review or production, create or pay for accounts, deploy to production (backend or web), purchase anything, or set `po_release_approval`. Prepare everything; the PO pulls the trigger.
+7. **PO-only actions.** Agents never: submit to App Store / Google Play for review or production, create or pay for accounts, deploy to production (backend or web), purchase anything, change sharing or publish libraries in the PO's Figma, or set `po_release_approval`. Prepare everything; the PO pulls the trigger.
 8. **Secrets never enter git.** Use `.env*` files or `secrets/` (gitignored). Document required keys in `docs/05-architecture/secrets.md` (names only, no values).
 9. **Two machines.** The repo is shared between a Mac (Xcode, iOS) and a Windows PC (Android toolchain). Before running a toolchain command, check `state/environment.md`; if a tool is missing here, record the task as `needs: mac` or `needs: windows` instead of failing or installing system software unasked.
 10. **Production quality, not demo quality.** UI must meet `.claude/skills/kb-production-ui-bar`. Minimal/placeholder UI is a defect.
@@ -33,7 +33,7 @@ Phase procedures (SOPs) live in `.claude/skills/phase-*`; shared templates in `c
 | 1 Research (R&D center) | `phase-1-research` | business-rnd, market, uiux-rnd, ai-rnd, monetization | synthesis written |
 | 2 Product definition | `phase-2-product` | product-manager, ux-designer, data-analyst | PRD + stories complete |
 | 3 Review board (MVP scope) | `review-board` | devils-advocate + panel | **G1** PO approves MVP scope |
-| 4 Design | `phase-4-design` | ui-designer, ux-writer, uiux-rnd | design passes UI bar review |
+| 4 Design | `phase-4-design` | ui-designer, ux-writer, uiux-rnd (+ figma team when `figma.enabled`) | design passes UI bar review |
 | 5 Architecture & setup | `phase-5-architecture` | solution-architect, security-lead | **G2** PO approves stack; project builds |
 | 6 Build loop | `phase-6-build` | selected mobile/backend/BaaS/web teams, code-reviewer | all features `passes: true` |
 | 7 QA & hardening | `phase-7-qa` | qa-engineer, test-automation, cyber-security team | QA sign-off + security clearance |
@@ -66,7 +66,7 @@ Rules for every agent:
 ## Repository map
 
 ```
-state/            project.json (phase, gates, stack), feature_list.json, progress.md, open-questions.md, environment.md
+state/            project.json (phase, gates, stack, figma), feature_list.json, progress.md, open-questions.md, environment.md
 docs/00-intake/ … docs/09-maintain/   artifacts per phase (one folder per phase)
 apps/mobile/      React Native or Flutter app        apps/ios/  Swift app        apps/android/  Kotlin app
 apps/web/<surface>/  web frontends: site, app, portal, dashboard, admin (React/Next.js | Vue/Nuxt | Angular; SSG, SSR or SPA)
@@ -94,6 +94,8 @@ docs/t0-engagement/ … docs/t4-transition/   takeover artifacts per phase; docs
 | `docs/01-research/` | each R&D/research agent writes its own file |
 | `docs/02-product/` | product-manager, ux-designer, data-analyst, ai-rnd-researcher (`ai-features.md`) |
 | `docs/03-review-board/` | panel members (own files), product-manager (decision) |
+| `docs/04-design/figma/` | figma team, each its own register (`kb-figma`): figma-library-designer, figma-screen-designer, figma-prototype-designer, figma-handoff-specialist |
+| `docs/04-design/assets/` | figma-handoff-specialist (exports, `manifest.md`), ui-designer |
 | `docs/04-design/` | ui-designer, ux-designer, ux-writer, uiux-rnd-researcher (reviews) |
 | `docs/05-architecture/` | solution-architect, security-lead (`security-review.md`) |
 | `state/handoff/<agent>-<id>.md` | any agent, only when the usage breaker pauses it (`HANDOFF.md`: delivery-director) |

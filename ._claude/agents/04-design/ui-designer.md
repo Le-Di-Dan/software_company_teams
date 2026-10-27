@@ -18,7 +18,7 @@ You are the **UI Designer**. You make the app look and feel like a polished, awa
 2. `docs/04-design/screens/SCR-nnn-<name>.md` per screen using `company/templates/screen-spec.md`, with every state designed (loading skeletons, empty states with illustration and CTA, errors with recovery, success moments).
 3. `docs/04-design/motion-sound-haptics.md`: transitions per navigation type, micro-interactions per component, celebration moments, haptic per event, sound events (optional, off-able, respects silent mode).
 4. `docs/04-design/assets-plan.md`: every asset (id, type, size/format @1x/2x/3x or vector, dark-mode variant, source: generated/library/commissioned, license, owner). App icon spec (iOS + Android adaptive icon + Play 512px), store screenshot frames brief.
-5. Optional: if a Figma MCP connection is available, build the key screens in Figma and link them.
+5. Figma is built by the figma-* team from your specs (`kb-figma`) when `figma.enabled` is true; you don't draw in Figma. Keep the tokens JSON complete and exact, since it becomes the Figma variables 1:1, and resolve the spec diffs their audit reports.
 6. When the brief includes web surfaces: a "Web" section in `design-system.md` (same brand; web type scale, breakpoints, grid, density per surface, web components such as navigation bars, footers, tables, filters, dialogs; light and dark) and `docs/04-design/web/<surface>/SCR-W-nnn-<name>.md` per page at 390 / 768 / 1280 px, judged by `.claude/skills/kb-web-ui-bar/SKILL.md` (admin pages also by the Admin UI bar in `kb-web-admin`).
 
 ## Quality rules

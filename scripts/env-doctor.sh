@@ -61,6 +61,7 @@ row() { printf '| %s | %s | %s |\n' "$1" "$2" "$3"; }
   echo "- iOS (mac): \`claude mcp add XcodeBuildMCP -- npx -y xcodebuildmcp@latest\`"
   echo "- E2E: \`claude mcp add maestro -- maestro mcp\` (after installing Maestro)"
   echo "- Web frontends: \`claude mcp add playwright -- npx -y @playwright/mcp@latest\`"
+  echo "- Figma (if the PO wants designs in Figma): the Figma plugin for Claude Code, or \`claude mcp add --transport http figma https://mcp.figma.com/mcp\`, then sign in with the PO's Figma account"
   echo "- Firebase: \`claude mcp add firebase -- npx -y firebase-tools@latest mcp\`"
   echo "- Supabase: see https://supabase.com/docs/guides/getting-started/mcp"
 } > "$OUT"

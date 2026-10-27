@@ -1,6 +1,6 @@
 # Mobile App Software Company — Claude Code template
 
-Một "công ty phần mềm" gồm **40 AI agent** chạy trong Claude Code để biến một ý tưởng app còn mơ hồ thành app mobile sẵn sàng publish lên App Store và Google Play cùng các frontend web đi kèm (landing page, web app, cổng khách hàng, trang quản trị), hoặc tiếp nhận một app bạn đã làm để chẩn đoán và làm lại cho tới khi kiếm được tiền. Bạn là **Product Owner (PO)**: bạn đưa ý tưởng, trả lời các câu hỏi audit và ra quyết định ở 4 cổng duyệt. Phần còn lại do công ty tự làm, gồm research, thiết kế, code, QA, compliance và chuẩn bị release.
+Một "công ty phần mềm" gồm **44 AI agent** chạy trong Claude Code để biến một ý tưởng app còn mơ hồ thành app mobile sẵn sàng publish lên App Store và Google Play cùng các frontend web đi kèm (landing page, web app, cổng khách hàng, trang quản trị), hoặc tiếp nhận một app bạn đã làm để chẩn đoán và làm lại cho tới khi kiếm được tiền. Bạn là **Product Owner (PO)**: bạn đưa ý tưởng, trả lời các câu hỏi audit và ra quyết định ở 4 cổng duyệt. Phần còn lại do công ty tự làm, gồm research, thiết kế, code, QA, compliance và chuẩn bị release.
 
 ## Bắt đầu một app mới
 
@@ -56,7 +56,7 @@ claude
 | 1 Research | `/phase-1-research` | Business R&D, Market, UI/UX R&D, AI R&D, Monetization | Chọn hướng visual yêu thích |
 | 2 Định nghĩa sản phẩm | `/phase-2-product` | PM, UX, Data, AI R&D, Compliance | — |
 | 3 Hội đồng phản biện | `/review-board G1` | Panel + Devil's Advocate | **G1: duyệt phạm vi MVP** |
-| 4 Thiết kế | `/phase-4-design` | UI, UX, UX Writer, UI/UX R&D review | Góp ý giao diện |
+| 4 Thiết kế | `/phase-4-design` | UI, UX, UX Writer, UI/UX R&D review (+ team Figma nếu bạn bật) | Góp ý giao diện |
 | 5 Kiến trúc | `/phase-5-architecture` | Solution Architect + team ngôn ngữ | **G2: duyệt stack**, tạo tài khoản/keys |
 | 6 Build | `/phase-6-build` | Squad (team ngôn ngữ đã chọn) + Code Reviewer | Mời ≥12 tester Android khi được báo |
 | 7 QA | `/phase-7-qa` | QA, Test Automation, Cyber Security (pentest) | Test trên máy thật nếu có |
@@ -74,6 +74,7 @@ Muốn thay đổi phạm vi sau G1 thì dùng `/change-request <mô tả>`.
 | Business | `business-analyst`, `market-researcher`, `monetization-strategist` |
 | Product | `product-manager` |
 | Design | `ux-designer`, `ui-designer`, `ux-writer` |
+| Design – Figma | `figma-library-designer`, `figma-screen-designer`, `figma-prototype-designer`, `figma-handoff-specialist` |
 | Engineering – Kiến trúc | `solution-architect`, `code-reviewer` |
 | Engineering – Mobile | `react-native-engineer`, `flutter-engineer`, `swift-ios-engineer`, `kotlin-android-engineer` |
 | Engineering – Backend | `nodejs-backend-engineer`, `python-backend-engineer`, `go-backend-engineer` |
@@ -101,9 +102,20 @@ Mỗi app chỉ dùng một **squad**: Architect đề xuất một team mobile,
 
 Ở pha 0 và 2, công ty hỏi bạn sản phẩm cần những surface nào. Ở G2, Architect chọn framework và cách render cho từng surface (trang công khai thì render tĩnh hoặc server để SEO tốt và tải nhanh, trang sau đăng nhập thì SPA), bạn duyệt, và team tương ứng vào squad. Mỗi surface nằm ở `apps/web/<surface>/`, test E2E bằng Playwright ở `tests/web-e2e/<surface>/`. Chuẩn chung gồm Core Web Vitals, WCAG 2.2 AA, SEO, bảo mật và tiêu chuẩn giao diện web (`kb-web-frontend`, `kb-web-ui-bar`; trang admin có thêm `kb-web-admin`). Công ty chỉ deploy lên preview/staging; deploy production là việc của bạn sau G3.
 
+**Team Figma (tuỳ chọn).** Nếu bạn muốn xem và góp ý thiết kế trên Figma, ở pha 0 công ty sẽ hỏi bạn có tài khoản Figma không, có file hay thư viện thương hiệu sẵn không. Khi bạn bật (`state/project.json → figma.enabled`) và kết nối Figma MCP, bốn agent chuyên Figma làm việc từ chính bản spec của UI Designer (spec vẫn là chuẩn, Figma vẽ lại đúng spec, không tự chế giá trị):
+
+| Agent | Làm gì |
+|---|---|
+| `figma-library-designer` | Dựng thư viện: biến màu sáng/tối, khoảng cách, bo góc, chữ, icon, component đủ trạng thái; tên biến khớp 1:1 với design token trong code |
+| `figma-screen-designer` | Vẽ màn hình của một trang (iOS, Android hoặc một surface web), đủ mọi trạng thái, sáng và tối, chỉ dùng component trong thư viện; với dự án tiếp nhận thì chụp lại app hiện tại vào trang `Today (v1)` |
+| `figma-prototype-designer` | Nối màn hình thành prototype bấm thử cho các luồng chính, chuyển cảnh theo motion token; vẽ sơ đồ luồng trên FigJam |
+| `figma-handoff-specialist` | Soát file (biến đã gắn chưa, component bị detach, thiếu trạng thái), xuất asset, Code Connect với component trong code, so ảnh app thật với Figma ở pha 6–7 |
+
+Mỗi agent Figma chỉ sửa trang được giao, nên nhiều agent chạy song song mà không đè nhau. Chia sẻ file, mời người, publish thư viện và mua seat vẫn là việc của bạn. Hook chặn việc giao bản vẽ Figma cho agent chung `general-purpose`.
+
 ## Các cơ chế bảo vệ (hooks, chạy tự động)
 
-- **Phân làn:** mỗi agent chỉ được sửa thư mục của mình. Ví dụ chỉ team Flutter/RN được sửa `apps/mobile/`, chỉ team web (React/Vue/Angular) được sửa `apps/web/`, chỉ team Supabase được sửa `services/baas/supabase/`.
+- **Phân làn:** mỗi agent chỉ được sửa thư mục của mình. Ví dụ chỉ team Flutter/RN được sửa `apps/mobile/`, chỉ team web (React/Vue/Angular) được sửa `apps/web/`, chỉ team Supabase được sửa `services/baas/supabase/`. Việc vẽ Figma chỉ giao cho team Figma, mỗi agent một trang.
 - **Feature list bị khoá:** sau khi khoá, `state/feature_list.json` không cho xoá feature hay sửa tiêu chí nghiệm thu. Muốn đánh dấu `passes: true` phải kèm bằng chứng test. Mọi thay đổi phạm vi phải đi qua change request đã được duyệt.
 - **Chặn bí mật:** API key, private key, service_role key không được ghi vào file nằm trong git.
 - **Hành động chỉ PO được làm:** submit lên store, đẩy track production, deploy production các trang web (`vercel --prod`, `netlify deploy --prod`) và lệnh duyệt G3 đều bị chặn với agent.
@@ -140,7 +152,7 @@ Hooks viết bằng Python 3 và được gọi qua bash, nên chạy được t
 - Mỗi máy chạy `bash scripts/env-doctor.sh` một lần. File `state/environment.md` là riêng của từng máy và không commit.
 - Việc cần máy kia được gắn tag `needs: mac` hoặc `needs: windows`. Khi mở repo trên máy kia, chạy `/company-status` là sẽ thấy việc đang chờ.
 
-MCP nên cài theo máy (gợi ý có trong `state/environment.md`): XcodeBuildMCP (Mac), Maestro MCP (cả hai máy), Playwright MCP nếu có làm web (cả hai máy), Firebase/Supabase MCP nếu dùng. Framework không dùng EAS trả phí: mọi build đều chạy local qua Xcode, Gradle và fastlane.
+MCP nên cài theo máy (gợi ý có trong `state/environment.md`): XcodeBuildMCP (Mac), Maestro MCP (cả hai máy), Playwright MCP nếu có làm web (cả hai máy), Figma MCP nếu muốn bản thiết kế trên Figma (cả hai máy), Firebase/Supabase MCP nếu dùng. Framework không dùng EAS trả phí: mọi build đều chạy local qua Xcode, Gradle và fastlane.
 
 ## Những việc chỉ PO làm được
 
@@ -155,7 +167,7 @@ Sau khi chạy `scripts/setup.sh` (trong repo template là `_CLAUDE.md` và `._c
 
 ```
 CLAUDE.md                 Sổ tay vận hành (mọi agent đều đọc)
-.claude/agents/           40 agent, chia theo phòng ban
+.claude/agents/           44 agent, chia theo phòng ban
 .claude/skills/           SOP từng pha (phase-*, review-board, change-request, company-status) + kiến thức (kb-*)
 .claude/hooks/            guard_files.py, guard_bash.py, session_start.py, activity_log.py (nhật ký cho bản đồ trụ sở)
 .claude/settings.json     agent mặc định, quyền, hooks

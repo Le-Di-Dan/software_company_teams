@@ -58,6 +58,9 @@ A circuit breaker (`.claude/hooks/usage_guard.py`) watches plan usage from the s
 ## Squad assembly
 After G2 (in a takeover: at T4, from the existing stack, confirmed at G2), write `stack` and `squad` in `state/project.json` (e.g. `["flutter-engineer","supabase-engineer","python-backend-engineer","frontend-vue-engineer", …]`). Web frontend teams (`frontend-react-engineer`, `frontend-vue-engineer`, `frontend-angular-engineer`) join for each framework in `stack.web` and own their surfaces under `apps/web/` (marketing site, web app/PWA, customer portal, dashboard, admin console). Only squad members and the always-on functions (product, design, QA, security, compliance, release) are used afterwards.
 
+## Figma design team
+When the PO wants designs in Figma (asked at intake), record `figma` in `state/project.json`: `enabled`, `file_key` / `file_url` (a file the PO shared, or one the PO approved creating; agents return the new key), `library_file_key` if the library is a separate file, `plan` (from `whoami`). Figma work goes only to the figma team (`kb-figma`): `figma-library-designer` (variables, styles, components), `figma-screen-designer` (one agent per page), `figma-prototype-designer` (prototypes, FigJam flow boards), `figma-handoff-specialist` (audit, assets, Code Connect, parity). `.claude/hooks/cost_guard.py` blocks Figma briefs sent to `general-purpose`. Give parallel Figma agents disjoint pages. Sharing, invites, library publishing and seats stay with the PO.
+
 ## Machines
 The repo is shared by a Mac (Xcode, Flutter) and a Windows PC (full Android toolchain). Check `state/environment.md`; if work needs the other machine, log it in `state/progress.md` as `needs: mac|windows` and tell the PO which machine to continue on. Never install system software without asking the PO.
 

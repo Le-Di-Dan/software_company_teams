@@ -18,6 +18,13 @@
     "web": {}
   },
   "squad": [],
+  "figma": {
+    "enabled": false,
+    "file_key": null,
+    "file_url": null,
+    "library_file_key": null,
+    "plan": null
+  },
   "po_release_approval": false,
   "usage_policy": {
     "plan": "auto",

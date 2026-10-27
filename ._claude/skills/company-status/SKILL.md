@@ -23,6 +23,7 @@ description: Show the company's current state to the PO in Vietnamese (phase, ga
 {"app_name": null, "idea": null, "engagement": "new", "doc_language": "en", "phase": "0-intake", "phase_status": "not-started",
  "gates": {"G0_brief": "pending", "G1_mvp_scope": "pending", "G2_stack": "pending", "G3_release": "pending"},
  "stack": {"mobile": null, "backend": null, "baas": null, "web": {}}, "squad": [], "po_release_approval": false,
+ "figma": {"enabled": false, "file_key": null, "file_url": null, "library_file_key": null, "plan": null},
  "usage_policy": {"plan": "auto", "budget_usd": null, "plans": {}},
  "cost_policy": {"profile": "economy", "model_overrides": {}, "max_parallel": 3, "resume_idle_min": 4, "read_max_kb": 30, "read_max_lines": 200},
  "updated_at": null}

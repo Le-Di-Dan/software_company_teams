@@ -17,6 +17,9 @@ subagents whose prompt cache had expired, and agents re-read whole 50-120 KB doc
   ranges, so a failure never has to be re-run just to see its output. The same commands piped into
   tail/grep/head or redirected to a file are blocked. The rewrite is auto-approved only when the original
   command is allowed by the permission rules; otherwise the normal permission prompt shows the wrapped command.
+- Agent/Task: Figma briefs sent to a generic agent (general-purpose, claude) are blocked and pointed at the
+  figma-* team, whose agents preload the Figma conventions (kb-figma) instead of rediscovering the Figma MCP
+  by trial and error on every call.
 
 Policy keys (all optional): profile (economy|balanced|quality), model_overrides {agent: model},
 max_parallel, resume_idle_min, read_max_kb, read_max_lines. Any error fails open.
@@ -47,6 +50,14 @@ OPUS["quality"] = OPUS["balanced"] | {"business-analyst", "store-compliance-offi
 RANK = {"haiku": 0, "sonnet": 1, "opus": 2}
 # Built-in helpers keep their own defaults (Explore already runs on a small model).
 UNROUTED = {"Explore", "statusline-setup", "claude-code-guide"}
+
+# Generic agents that must not take Figma work; the figma-* team does it (.claude/skills/kb-figma).
+GENERIC_AGENTS = {"general-purpose", "claude"}
+FIGMA_WORK = re.compile(r"\bfig(?:ma|jam)\b|\buse_figma\b|figma\.com/(?:design|board|file|proto)/", re.I)
+FIGMA_TEAM = {"figma-library-designer": "variables, styles, icons, components",
+              "figma-screen-designer": "screens of one page, all states, light/dark",
+              "figma-prototype-designer": "prototypes, motion, FigJam flow boards",
+              "figma-handoff-specialist": "audit, asset export, Code Connect, design parity"}
 
 READ_SCOPES = ("docs/", "state/", "company/research/")
 READ_EXTS = {".md", ".jsonl", ".txt", ".csv", ".log"}
@@ -84,6 +95,19 @@ def route_model(data, pol):
         return
     ti["model"] = target
     print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "updatedInput": ti}}))
+
+
+def guard_figma_route(data):
+    ti = data.get("tool_input") or {}
+    agent = ti.get("subagent_type") or "general-purpose"
+    if agent not in GENERIC_AGENTS:
+        return
+    if not FIGMA_WORK.search(f"{ti.get('description') or ''} {ti.get('prompt') or ''}"):
+        return
+    team = "; ".join(f"{name} ({job})" for name, job in FIGMA_TEAM.items())
+    block(f"[cost guard] Figma work goes to the figma team, not {agent}: {team}. "
+          "Conventions and phase steps: .claude/skills/kb-figma, phase-4-design step 6. "
+          "Research about Figma (no canvas work) goes to uiux-rnd-researcher.")
 
 
 # ---------- SendMessage: no resuming cold subagents ----------
@@ -367,6 +391,7 @@ def main():
     pol = policy()
     tool = data.get("tool_name") or ""
     if tool in ("Agent", "Task"):
+        guard_figma_route(data)
         route_model(data, pol)
     elif tool == "SendMessage":
         guard_resume(data, pol)

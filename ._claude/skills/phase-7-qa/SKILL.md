@@ -10,6 +10,7 @@ description: Phase 7 - full QA and hardening on iOS and Android - test plan exec
 - `test-automation-engineer`: run the full automated suite (unit, integration, Maestro E2E on available simulators/emulators, Playwright for each web surface); report failures and flakiness.
 - `security-lead`: run the `security-assessment` skill (full) — directs appsec-code-auditor + mobile-pentester + api-cloud-pentester, collects into `state/security-findings.json`, writes the per-area reports in `docs/07-qa/`.
 - `uiux-rnd-researcher`: final UI bar review from QA screenshots → `docs/04-design/uiux-rnd-review.md` (final section).
+- When `figma.enabled`: `figma-handoff-specialist` (Parity mode) → `docs/04-design/figma/parity-<date>.md`; app-side mismatches become bugs in `docs/07-qa/bugs.md` via qa-engineer. Mind `max_parallel`: run it in the next wave if the kickoff is full.
 
 ## Fix loop
 For each bug (blocker → critical → major): delegate to the owning engineer (with bug id and evidence) → `code-reviewer` → `qa-engineer` verifies and closes. Minor bugs: fix if cheap, otherwise log for next version with PO visibility.

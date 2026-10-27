@@ -20,7 +20,13 @@ Precondition: `gates.G1_mvp_scope == "approved"`. Inputs: PRD, stories, flows, `
    - `store-compliance-officer` → HIG/Material, paywall disclosures, permission rationale timing (append to `docs/02-product/compliance-precheck.md`).
    - `qa-engineer` → testability notes (missing states, ambiguous behavior) in `docs/07-qa/design-testability.md`.
 5. Loop `ui-designer` on all FAIL items until the UI/UX R&D review passes (max 3 loops; then run `review-board Design`).
-6. Show the PO the design direction: palette, typography, 3–5 key screen specs (and Figma links if built). Ask for approval or adjustments via AskUserQuestion. (Not a formal gate, but PO taste matters.)
+6. **Figma track** (only when `figma.enabled`; conventions in `.claude/skills/kb-figma`). Never send Figma work to `general-purpose`: the hook blocks it. First confirm the Figma MCP answers `whoami` and `figma.file_key` is set (a file the PO shared, or a new one the PO approved; the library designer creates it and you record the key). Briefs carry the file key and the spec paths.
+   a. `figma-library-designer` → variables, styles, icons, components from `design-system.md` → `docs/04-design/figma/library.md`. Can start as soon as the design system is stable (after step 2), in parallel with step 4.
+   b. `figma-screen-designer`, one agent per page (`iOS`, `Android`, `Web / <surface>`; takeover also `Today (v1)`), in waves of ≤ `max_parallel`, never two on one page → `screens-<page>.md`. Start the `figma-prototype-designer` FigJam flow board in the same wave.
+   c. `figma-prototype-designer` → prototypes of the key flows on the `Prototype` page → `prototypes.md`.
+   d. `figma-handoff-specialist` (Audit mode, then Assets mode) → `audit-<date>.md`, `docs/04-design/assets/`. Send FAIL items to their owner agent (spec issues to `ui-designer` first, then a Figma re-sync); max 2 loops.
+   e. `uiux-rnd-researcher` reviews the saved Figma screenshots in `docs/04-design/figma/shots/` alongside the specs (append to `uiux-rnd-review.md`).
+7. Show the PO the design direction: palette, typography, 3–5 key screen specs, and when Figma is on the prototype links (the PO can comment in Figma; collect those comments into the next `ui-designer` brief). Ask for approval or adjustments via AskUserQuestion. (Not a formal gate, but PO taste matters.)
 
 Update state: `phase: "5-architecture"`; log; commit.
 
@@ -29,3 +35,4 @@ Update state: `phase: "5-architecture"`; log; commit.
 - Start from the existing design: the walkthrough screenshots, the T1 UX/UI reports and the existing design system in `client/` (tokens, components). Decide with the PO whether v2 **evolves** the current visual language or **replaces** it (a TG1 decision or an AskUserQuestion here).
 - Specify every screen touched by fix, rebuild or add stories, plus the shared components they change. Screens marked keep get a short spec only if the design system change alters them.
 - Each spec states "today → v2" with the current screenshot path, so engineers change what is intended and nothing else.
+- Figma track: `figma-screen-designer` first captures the current app on a `Today (v1)` page; if the customer already has a Figma file, the PO shares it, `figma-library-designer` audits and reuses its library (evolve) or starts a new one (replace), and nothing in the customer's file is deleted.

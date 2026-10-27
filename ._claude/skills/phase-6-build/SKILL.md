@@ -10,6 +10,7 @@ Precondition: `gates.G2_stack == "approved"`, `state/feature_list.json` locked, 
 ## Loop (repeat until every active feature has `passes: true`)
 1. **Pick** the highest-priority feature with `passes: false`, dependencies satisfied, and runnable on this machine (skip ones whose remaining work is `needs:` the other machine; list them for the PO).
 2. **Implement**: delegate to the feature's `owner` (squad agent) with a brief: feature id, paths to story, screen specs, tokens, architecture/ADRs, API contract. They follow `kb-engineering-workflow`.
+   - When `figma.enabled`: the brief also carries the Figma node links of the feature's screens (from `docs/04-design/figma/screens-*.md`). Engineers may read them with `get_design_context` (after loading `figma:figma-design-to-code`) as a visual reference; the specs and tokens stay the contract.
    - Backend-dependent features: backend/BaaS feature first, then the mobile or web feature against the contract. Web features (`platforms: ["web:<surface>"]`, e.g. `["web:site"]`) go to the frontend team of that surface's framework.
    - Independent features for different owners may run in parallel (one message, ≤3 agents). Use `isolation: "worktree"` for parallel agents editing the same app.
 3. **Review**: delegate to `code-reviewer` with the feature id and the changed files/diff. If CHANGES_REQUIRED → send the findings to the same engineer (SendMessage only if it returned less than 4 minutes ago; otherwise a fresh engineer of the same type with the feature id, changed files and findings) → re-review. Max 3 cycles, then escalate to `solution-architect`.
@@ -19,7 +20,8 @@ Precondition: `gates.G2_stack == "approved"`, `state/feature_list.json` locked, 
 
 ## Milestones
 - **Core flow working** (onboarding + core loop): ask `release-manager` to ship the first build to TestFlight (internal) and Google Play **closed testing**, and remind the PO to opt in ≥12 testers. The 14-day clock should run in parallel with the rest of the build.
-- **UI checkpoint** halfway: `uiux-rnd-researcher` reviews screenshots from `docs/07-qa/evidence/` against `kb-production-ui-bar` (web pages: `kb-web-ui-bar`); failures become bug fixes for the owners.
+- **UI checkpoint** halfway: `uiux-rnd-researcher` reviews screenshots from `docs/07-qa/evidence/` against `kb-production-ui-bar` (web pages: `kb-web-ui-bar`); failures become bug fixes for the owners. When `figma.enabled`, `figma-handoff-specialist` runs Parity mode in the same wave.
+- **Code Connect** (when `figma.enabled`): once the shared UI components of an app or web surface exist in code, `figma-handoff-specialist` (Code Connect mode) maps the library to them, so later `get_design_context` reads return the team's own components.
 - **Web surfaces on staging**: once a surface's first complete flow passes, ask `devops-engineer` to deploy it to its preview/staging URL so the PO can try it (with staging accounts where it needs sign-in).
 
 ## Long unattended runs
